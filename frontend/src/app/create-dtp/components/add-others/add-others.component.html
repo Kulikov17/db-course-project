@@ -1,0 +1,77 @@
+<div mat-dialog-content>
+    <form [formGroup]="findPassport">
+        <mat-form-field class="person-find" appearance="standard">
+            <mat-label>Введите серию и номер пасспорта</mat-label>
+            <input matInput formControlName="passport" #postalCode maxlength="10" required>
+            <mat-hint align="end">{{postalCode.value.length}} / 10</mat-hint>
+            <mat-hint>До 14 лет свидетельство о рождении</mat-hint>
+        </mat-form-field>
+    
+        <button class = "btn-find" mat-raised-button color="primary" [disabled]="findPassport.invalid" (click)= 'findPerson()'>Найти человека</button>
+    </form>
+    <mat-form-field class="person-find-info" *ngIf='canFindPerson'>
+      <br>
+      <h3>Информация о найденном человеке:</h3>
+      <p>{{personViewValue}}</p>
+      <p>{{personBirthdateViewValue}}</p>
+    </mat-form-field>
+
+    <mat-form-field class="person-find-info" *ngIf='alreadyExistPerson'>
+        <br>
+        <h3>Этот человек уже задействован в ДТП</h3>
+    </mat-form-field>
+
+    <mat-form-field class="person-find-info" *ngIf='canFindError'>
+       <p>Такого человека нет в системе!</p>
+       <button mat-raised-button color="primary" (click)="createPerson()">Создать</button>
+    </mat-form-field>
+
+    <form class="person-form" [formGroup]="personForm" *ngIf='canCreatePerson'>
+        <mat-form-field class="person-full-width" appearance="standard">
+           <mat-label>Фамилия</mat-label>
+           <input class = "my-input" matInput formControlName="userSurname" required>
+        </mat-form-field>
+        <br>
+        <mat-form-field class="person-full-width" appearance="standard">
+           <mat-label>Имя</mat-label>
+           <input class = "my-input" matInput formControlName="userName" required>
+        </mat-form-field>
+        <br>
+        <mat-form-field class="person-full-width" appearance="standard">
+            <mat-label>Отчество</mat-label>
+            <input class = "my-input" matInput formControlName="userPatronymic">
+        </mat-form-field>
+        <br>
+    
+        <mat-radio-group formControlName ="userSex">
+            <mat-label>Пол </mat-label>
+            <mat-radio-button color="primary" class= "my-radiobtn" value="муж">муж</mat-radio-button>
+            <mat-radio-button color="primary" class= "my-radiobtn" value="жен">жен</mat-radio-button>
+        </mat-radio-group>
+        <br>
+        <mat-form-field class="person-full-width" appearance="standard">
+            <mat-label>Дата рождения</mat-label>
+            <input matInput [matDatepicker]="picker" formControlName="userBirthdate" [max]="maxDate" required>
+            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+        </mat-form-field>
+        <br>
+        <mat-form-field class="person-full-width" appearance="standard">
+            <mat-label>Введите серию и номер пасспорта</mat-label>
+            <input matInput formControlName="userPassport" #postalCode1 maxlength="10" required>
+            <mat-hint align="end">{{postalCode1.value.length}} / 10</mat-hint>
+            <mat-hint>До 14 лет свидетельство о рождении</mat-hint>
+        </mat-form-field>
+        <br>
+        <mat-form-field class="person-full-width" appearance="standard">
+            <mat-label>Водительское удостоверение</mat-label>
+            <input matInput formControlName="userDriverLicense" #postalCode2 maxlength="10" required>
+            <mat-hint align="end">{{postalCode2.value.length}} / 10</mat-hint>
+        </mat-form-field>
+    </form>
+</div>
+
+<div mat-dialog-actions>
+  <button mat-raised-button color="warn" (click)="onNoClick()">Отменить</button>
+  <button mat-raised-button color="primary" *ngIf='canFindPerson || personForm.valid' (click)="onReturnResult()">Добавить участника ДТП</button>
+</div>

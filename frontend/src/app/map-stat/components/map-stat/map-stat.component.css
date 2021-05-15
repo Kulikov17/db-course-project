@@ -1,0 +1,9 @@
+.item {
+    margin-left: 2%;
+}
+
+.full-width {
+    min-width: 150px;
+    max-width: 423px;
+    width: 100%;
+}

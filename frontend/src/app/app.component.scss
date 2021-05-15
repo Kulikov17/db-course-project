@@ -1,0 +1,19 @@
+:host {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  
+    .side-container {
+      display: flex;
+      height: 100%;
+      overflow-y: auto;
+      main {
+        width: 100%;
+        margin-left: 1%;
+      }
+   }
+  }
+  
+.side-container, main {
+    overflow: hidden;
+}

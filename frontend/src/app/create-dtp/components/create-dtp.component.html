@@ -1,0 +1,143 @@
+<mat-horizontal-stepper [linear]="true" #stepper class="stepper">
+    <mat-step label="Дата, время и место совершения ДТП">
+      <form>
+        <mat-form-field class="first-step-full-width" appearance="fill">
+          <mat-label>Дата совершения ДТП</mat-label>
+          <input matInput [matDatepicker]="picker" [formControl]="dateDTP" [max]="maxDate" required>
+          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
+        </mat-form-field>
+        <br>
+        <mat-form-field class="first-step-full-width" appearance="fill">
+          <mat-label>Время совершения ДТП</mat-label>
+          <input type="time" matInput [formControl]="timeDTP" required>
+        </mat-form-field>
+        <br>
+        <div class="container">
+          <div class="dadata-example">
+            <div>
+              <label for="address">Место совершения ДТП</label>
+              <ngx-dadata [config]="configAddress" id="address" (selected)="onAdressSelect($event)"></ngx-dadata>
+              <p>Обязательно необходимо ввести населенный пункт</p>
+            </div>
+          </div>
+        </div>
+        </form>
+        <div>
+          <!--<button class="btn-first-step" mat-raised-button color="primary" [disabled]='dateDTP.invalid || timeDTP.invalid || addressInvalid' matStepperNext>Далее</button>-->
+          <button class="btn-first-step" mat-raised-button color="primary" matStepperNext>Далее</button>
+        </div>
+        <div class="first-step-size">
+        </div>
+    </mat-step>
+    <mat-step label="Информацию об участниках ДТП">
+      <span class="example-list-section">
+        <mat-checkbox class="example-margin"
+                      [color]="typeDtp.color"
+                      (click) = 'manageCountAffected(typeDtp)'>
+          {{typeDtp.name}}
+        </mat-checkbox>
+      </span>
+      <span class="example-list-section">
+        <ul>
+          <li *ngFor="let subtypeDtp of typeDtp.subtypeDtp" required>
+            <mat-checkbox [color]="subtypeDtp.color"
+                          [(ngModel)]="subtypeDtp.completed"
+                          (click) = 'manageCountAffected(subtypeDtp)'>
+              {{subtypeDtp.name}}
+            </mat-checkbox>
+          </li>
+        </ul>
+      </span>
+      <mat-list>
+        <div mat-subheader>Пострадавшие водители. Минимум водителей: {{requiredCountDrivers}}</div>
+        <mat-chip-list #chipList>
+          <mat-chip
+            *ngFor="let driver of drivers"
+            [selectable]="selectableChips"
+            [removable]="removableChips"
+            (removed)="removeDriver(driver)">
+            {{driver.surname+" "+driver.passport}}
+            <mat-icon matChipRemove *ngIf="removableChips">cancel</mat-icon>
+          </mat-chip>
+        </mat-chip-list>
+
+        <button mat-button class="btn-add-affected" (click)='addDriver()'>Добавить</button>
+        <mat-divider></mat-divider>
+
+        <div mat-subheader>Пострадавшие пассажиры. Минимум пассажиров: {{requiredCountPassengers}}</div>
+        <mat-chip-list #chipList>
+          <mat-chip
+            *ngFor="let passenger of passengers"
+            [selectable]="selectableChips"
+            [removable]="removableChips"
+            (removed)="removePassenger(passenger)">
+            {{passenger.surname+" "+passenger.passport}}
+            <mat-icon matChipRemove *ngIf="removableChips">cancel</mat-icon>
+          </mat-chip>
+        </mat-chip-list>
+        <button mat-button class="btn-add-affected" (click)='addPassenger()'>Добавить</button>
+        <mat-divider></mat-divider>
+
+        <div *ngIf = 'requiredCountWalkers > 0' mat-subheader>Пострадавшие пешеходы. Минимум пешеходов: {{requiredCountWalkers}}</div>
+        <mat-chip-list #chipList>
+          <mat-chip
+            *ngFor="let walker of walkers"
+            [selectable]="selectableChips"
+            [removable]="removableChips"
+            (removed)="removeWalker(walker)">
+            {{walker.surname+" "+walker.passport}}
+            <mat-icon matChipRemove *ngIf="removableChips">cancel</mat-icon>
+          </mat-chip>
+        </mat-chip-list>
+        <button *ngIf = 'requiredCountWalkers > 0' mat-button class="btn-add-affected" (click)='addWalker()'>Добавить</button>
+        <mat-divider *ngIf = 'requiredCountWalkers > 0'></mat-divider>
+        
+        <div *ngIf = 'requiredCountCyclists > 0' mat-subheader>Пострадавшие велосипедисты. Минимум велосипедистов: {{requiredCountCyclists}}</div>
+        <mat-chip-list #chipList>
+          <mat-chip
+            *ngFor="let cyclist of cyclists"
+            [selectable]="selectableChips"
+            [removable]="removableChips"
+            (removed)="removeCyclist(cyclist)">
+            {{cyclist.surname+" "+cyclist.passport}}
+            <mat-icon matChipRemove *ngIf="removableChips">cancel</mat-icon>
+          </mat-chip>
+        </mat-chip-list>
+        <button *ngIf = 'requiredCountCyclists > 0' mat-button class="btn-add-affected" (click)='addCyclist()'>Добавить</button>
+        <mat-divider *ngIf = 'requiredCountCyclists > 0'></mat-divider>
+       
+        <div *ngIf = 'requiredCountCouchers > 0' mat-subheader>Пострадавшие кучеры. Минимум кучеров: {{requiredCountCouchers}}</div>
+        <mat-chip-list #chipList>
+          <mat-chip
+            *ngFor="let coucher of couchers"
+            [selectable]="selectableChips"
+            [removable]="removableChips"
+            (removed)="removeCoucher(coucher)">
+            {{coucher.surname+" "+coucher.passport}}
+            <mat-icon matChipRemove *ngIf="removableChips">cancel</mat-icon>
+          </mat-chip>
+        </mat-chip-list>
+        <button *ngIf = 'requiredCountCouchers > 0' mat-button class="btn-add-affected" (click)='addCoucher()'>Добавить</button>
+        <mat-divider *ngIf = 'requiredCountCouchers > 0'></mat-divider>
+
+      </mat-list>
+      <div>
+        <button mat-raised-button color="warn" (click)="stepper.reset(); clearAll();">Отменить</button>
+        <button mat-raised-button class="btn-back" color="accent" matStepperPrevious>Назад</button>
+        <button mat-raised-button class="btn-go" color="primary" [disabled]='disabledToFinalStep' matStepperNext>Далее</button>
+      </div>
+    </mat-step>
+    <mat-step>
+      <ng-template matStepLabel>Добавить ДТП</ng-template>
+      <mat-form-field class="first-step-full-width">
+        <mat-label>Дополнительная информация о ДТП</mat-label>
+        <textarea matInput [formControl]="descriptionDTP"></textarea>
+      </mat-form-field>
+      <div>
+        <button mat-raised-button color="warn" (click)="stepper.reset(); clearAll();">Отменить</button>
+        <button mat-raised-button class="btn-back" color="accent" matStepperPrevious>Назад</button>
+        <button mat-raised-button class="btn-go" color="primary" (click)="addDTP(); stepper.reset(); clearAll();">Добавить ДТП</button>
+      </div>
+    </mat-step>
+</mat-horizontal-stepper>

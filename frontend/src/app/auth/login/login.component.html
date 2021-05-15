@@ -1,0 +1,20 @@
+<p>Для модераторов сайта</p>
+
+<form class="example-form">
+    <mat-form-field class="example-full-width" appearance="standard">
+      <mat-label>Логин</mat-label>
+      <input matInput [formControl]="loginControl">
+    </mat-form-field>
+  
+    <mat-form-field class="example-full-width" appearance="standard">
+      <mat-label>Пароль</mat-label>
+      <input matInput [formControl]="passwordControl" [type]="hide ? 'password' : 'text'">
+      <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hide">
+      <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
+      </button>
+    </mat-form-field>
+</form>
+
+<button mat-raised-button color="primary" (click)= "login()">Войти</button>
+
+<p *ngIf = "!validUser">Неверный логин или пароль!</p>

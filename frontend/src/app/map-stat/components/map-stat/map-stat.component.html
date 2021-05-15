@@ -1,0 +1,24 @@
+<mat-form-field class="full-width" appearance="standard">
+  <mat-label>Категории дтп</mat-label>
+  <mat-select [(value)]="selectedTypeDtp">
+    <mat-option></mat-option>
+    <mat-option [value]="option.value" *ngFor="let option of typeDtp">{{ option.viewValue }}</mat-option>
+  </mat-select>
+</mat-form-field>
+<mat-form-field class = 'item' appearance="standard">
+    <mat-label>Год</mat-label>
+    <mat-select [(value)]="selectedYear">
+      <mat-option></mat-option>
+      <mat-option [value]="option.value" *ngFor="let option of year">{{ option.viewValue }}</mat-option>
+    </mat-select>
+</mat-form-field>
+<mat-form-field class = 'item' appearance="standard">
+    <mat-label>Месяц</mat-label>
+    <mat-select [(value)]="selectedMonth">
+      <mat-option></mat-option>
+      <mat-option [value]="option.value" *ngFor="let option of month">{{ option.viewValue }}</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+<button class = 'item' mat-raised-button color="primary">Подтвердить</button>
+<app-yandex-map></app-yandex-map>

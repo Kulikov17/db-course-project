@@ -1,0 +1,32 @@
+.person-form {
+    margin-top: 3%;
+    min-width: 150px;
+    max-width: 500px;
+    width: 100%;
+}
+
+.person-find {
+    min-width: 150px;
+    max-width: 500px;
+    width: 100%;
+}
+
+.btn-find{
+    margin-left: 1%;
+}
+  
+.person-full-width {
+    width: 100%;
+}
+
+.find-person-error {
+    margin-top: 4%;
+}
+.my-input {
+    text-transform: capitalize; 
+}
+
+.my-radiobtn {
+    margin-left: 2%; 
+    margin-top: 2%;
+}

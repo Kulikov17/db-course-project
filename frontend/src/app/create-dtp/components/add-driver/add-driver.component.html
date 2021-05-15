@@ -1,0 +1,95 @@
+<div mat-dialog-content>
+    <form [formGroup]="findPassport" *ngIf='stagePerson'>
+        <mat-form-field class="person-find" appearance="standard">
+            <mat-label>Введите серию и номер пасспорта</mat-label>
+            <input matInput formControlName="passport" #postalCode maxlength="10" (ngModelChange)="dropFindPerson()" required>
+            <mat-hint align="end">{{postalCode.value.length}} / 10</mat-hint>
+            <mat-hint>До 14 лет свидетельство о рождении</mat-hint>
+        </mat-form-field>
+    
+        <button class = "btn-find" mat-raised-button color="primary" [disabled]="findPassport.invalid" (click)= 'findPerson()'>Найти человека</button>
+    </form>
+    <mat-form-field class="find-info" *ngIf='canFindPerson && stagePerson'>
+      <br>
+      <h3>Информация о найденном человеке:</h3>
+      <p>{{personViewValue}}</p>
+      <p>{{personBirthdateViewValue}}</p>
+    </mat-form-field>
+
+    <mat-form-field class="find-info" *ngIf='alreadyExistPerson && stagePerson'>
+        <br>
+        <h3>Этот человек уже задействован в ДТП</h3>
+    </mat-form-field>
+
+    <mat-form-field class="find-info" *ngIf='canFindError && stagePerson'>
+       <p>Такого человека нет в системе!</p>
+       <button mat-raised-button color="primary" (click)="createPerson()">Создать</button>
+    </mat-form-field>
+
+    <form class="person-form" [formGroup]="personForm" *ngIf='canCreatePerson'>
+        <mat-form-field class="full-width" appearance="standard">
+           <mat-label>Фамилия</mat-label>
+           <input class = "my-input" matInput formControlName="userSurname" required>
+        </mat-form-field>
+        <br>
+        <mat-form-field class="full-width" appearance="standard">
+           <mat-label>Имя</mat-label>
+           <input class = "my-input" matInput formControlName="userName" required>
+        </mat-form-field>
+        <br>
+        <mat-form-field class="full-width" appearance="standard">
+            <mat-label>Отчество</mat-label>
+            <input class = "my-input" matInput formControlName="userPatronymic">
+        </mat-form-field>
+        <br>
+    
+        <mat-radio-group formControlName ="userSex">
+            <mat-label>Пол </mat-label>
+            <mat-radio-button color="primary" class= "my-radiobtn" value="муж">муж</mat-radio-button>
+            <mat-radio-button color="primary" class= "my-radiobtn" value="жен">жен</mat-radio-button>
+        </mat-radio-group>
+        <br>
+        <mat-form-field class="full-width" appearance="standard">
+            <mat-label>Дата рождения</mat-label>
+            <input matInput [matDatepicker]="picker" formControlName="userBirthdate" [max]="maxDate" required>
+            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+        </mat-form-field>
+        <br>
+        <mat-form-field class="full-width" appearance="standard">
+            <mat-label>Водительское удостоверение</mat-label>
+            <input matInput formControlName="userDriverLicense" #postalCode2 maxlength="10" required>
+            <mat-hint align="end">{{postalCode2.value.length}} / 10</mat-hint>
+        </mat-form-field>
+    </form>
+
+    <form [formGroup]="findRegisterNumber" *ngIf='stageTS'>
+        <mat-form-field class="person-find" appearance="standard">
+            <mat-label>Введите регистрационный номер ТС</mat-label>
+            <input matInput formControlName="registerNumber" #postalCode3 maxlength="10" required>
+            <mat-hint align="end">{{postalCode3.value.length}} / 10</mat-hint>
+        </mat-form-field>
+        <button class = "btn-find" mat-raised-button color="primary" [disabled]="findRegisterNumber.invalid" (click)= 'findTS()'>Найти ТС</button>
+    </form>
+    <mat-form-field class="find-info" *ngIf='canFindTS && stageTS'>
+      <br>
+      <h3>Информация о найденном TC:</h3>
+      <p>{{tsViewValue}}</p>
+    </mat-form-field>
+
+    <mat-form-field class="find-info" *ngIf='canFindErrorTS && stageTS'>
+        <p>Такого ТС нет в системе!</p>
+        <button routerLink="/ts" routerLinkActive="active" mat-raised-button color="primary" (click)="onNoClick()">Создать</button>
+    </mat-form-field>
+    <mat-form-field class="find-info" *ngIf='alreadyExistTS && stageTS'>
+        <br>
+        <h3>Это ТС уже задействовано в ДТП</h3>
+    </mat-form-field>
+</div>
+
+<div mat-dialog-actions>
+  <button mat-raised-button color="warn" (click)="onNoClick()">Отменить</button>
+  <button mat-raised-button color="primary"  *ngIf='stagePerson && (canFindPerson || personForm.valid)' (click)='onStageTS()'>Далее</button>
+  <button mat-raised-button color="accent" *ngIf='stageTS' cdkFocusInitial (click)='onStagePerson()'>Назад</button>
+  <button mat-raised-button color="primary" *ngIf='stageTS && canFindTS' (click)="onReturnResult()" cdkFocusInitial>Добавить участника ДТП</button>
+</div>
