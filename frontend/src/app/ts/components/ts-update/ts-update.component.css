@@ -1,0 +1,23 @@
+.ts-form {
+    min-width: 150px;
+    max-width: 500px;
+    width: 100%;
+}
+  
+.ts-full-width {
+    width: 100%;
+}
+
+.ts-find {
+    min-width: 150px;
+    max-width: 500px;
+    width: 100%;
+}
+
+.btn-find {
+    margin-left: 1%;
+}
+
+.find-ts-error {
+    margin-top: 4%;
+}

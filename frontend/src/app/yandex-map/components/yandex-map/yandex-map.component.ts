@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { DtpService } from '../../../dtp/services/dtp.service';
+import { Dtp } from 'src/app/shared/models/dtp';
 
 declare var ymaps:any;
 
@@ -11,10 +13,24 @@ declare var ymaps:any;
 export class YandexMapComponent implements OnInit {
 
   public map :any;
-  constructor(private http: HttpClient) { 
+  public dtp: any;
+  constructor(private http: HttpClient, private dtpService: DtpService) {
+    
+  }
+
+  loadDtp() {
+    return this.dtpService.getAllDtp()
   }
 
   ngOnInit(): void {
+    this.dtpService.getAllDtp().subscribe((data:Dtp) =>  {
+        console.log(data);
+        this.loadMaps(data);
+    });
+    }
+
+    loadMaps(data: Dtp) {
+        console.log(data);
     ymaps.ready(function () {
         var map = new ymaps.Map('map', {
             center: [65, 100],
@@ -47,20 +63,23 @@ export class YandexMapComponent implements OnInit {
         
     }).then(function (result) {
         console.log( result.geoObjects._collectionComponent._baseArrayComponent)
+       // console.log(await this.dtpService.dtp);
         result.geoObjects._collectionComponent._baseArrayComponent._children.forEach(function (feature) {
             var content = feature.properties._data.hintContent 
+        
+            console.log(data.dateDtp);
             // Для каждого субъекта РФ зададим подсказку с названием федерального округа, которому он принадлежит.
-            feature.properties._data.hintContent = content + "<br>Колобок";
+            feature.properties._data.hintContent = content + data[0].dateDtp;
         });
         console.log(result.geoObjects._collectionComponent._baseArrayComponent._children)
         map.geoObjects.add(result.geoObjects)
     });
     });
-
     }
-
-
-
-
 }
+
+
+
+
+
   

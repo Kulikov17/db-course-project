@@ -3,6 +3,6 @@ export interface Ts {
     brand?: string,
     model?: string,
     color?: string,
-    ownerPassport: string
-    registerNumber: string
+    ownerpassport: string
+    registernumber: string
 }

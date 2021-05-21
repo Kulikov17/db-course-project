@@ -3,8 +3,8 @@ export class UpdateTsDtoClient {
     brand?: string;
     model?: string;
     color?: string;
-    registerNumber: string;
-    ownerPassport: string;
+    registernumber: string;
+    ownerpassport: string;
 }
 
 export class UpdateTsDtoServer {
@@ -12,6 +12,6 @@ export class UpdateTsDtoServer {
     brand?: string;
     model?: string;
     color?: string;
-    registerNumber: string;
+    registernumber: string;
     owner: number;
 }

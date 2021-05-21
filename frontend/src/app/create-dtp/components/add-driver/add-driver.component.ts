@@ -1,7 +1,7 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
-import { Person } from '../../../shared/models/person';
+import { Person, PersonDie } from '../../../shared/models/person';
 import { Ts } from '../../../shared/models/ts';
 import { PersonService } from '../../../person/services/person.service';
 import { TsService } from '../../../ts/services/ts.service';
@@ -10,6 +10,7 @@ import * as moment from 'moment';
 export interface DialogData {
   people: Person[];
   ts: Ts[];
+  date: string;
 }
 
 @Component({
@@ -31,10 +32,15 @@ export class AddDriverComponent implements OnInit {
   public canFindErrorTS = false;
   public canCreateTS = false;
   public alreadyExistTS = false;
+  public canAddPerson = false;
   public stagePerson = true;
+  public isPersonNotDie = true;
   public stageTS = false;
   public personViewValue;
   public personBirthdateViewValue;
+  public personDieViewValue;
+  public personDopViewValue;
+  public datedeath = '';
   public tsViewValue;
 
   public personForm : FormGroup;
@@ -55,16 +61,7 @@ export class AddDriverComponent implements OnInit {
         "passport": new FormControl("", [Validators.required,  Validators.minLength(10), Validators.pattern('^[0-9]+$')])
       });
       this.findRegisterNumber = new FormGroup({
-        "registerNumber": new FormControl("", [Validators.required,  Validators.minLength(10), Validators.pattern('^[0-9]+$')])
-      });
-
-      this.personForm = new FormGroup({
-        "userSurname": new FormControl("", [Validators.required, Validators.pattern('^[a-zA-Zа-яёА-ЯЁ ]*$')]),
-        "userName": new FormControl("", [Validators.required, Validators.pattern('^[a-zA-Zа-яёА-ЯЁ ]*$')]),
-        "userPatronymic": new FormControl("", [Validators.pattern('^[a-zA-Zа-яёА-ЯЁ ]*$')]),
-        "userSex": new FormControl("муж"),
-        "userBirthdate": new FormControl('', [Validators.required]),
-        "userDriverLicense": new FormControl('', [Validators.required, Validators.maxLength(10), Validators.pattern('^[0-9]+$')])
+        "registerNumber": new FormControl("", [Validators.required,  Validators.minLength(10)])
       });
   }
   
@@ -74,8 +71,8 @@ export class AddDriverComponent implements OnInit {
   }
 
   public onStageTS() {
-    this.stagePerson = false;
     this.stageTS = true;
+    this.stagePerson = false;
   }
 
   public findPerson() {
@@ -88,6 +85,7 @@ export class AddDriverComponent implements OnInit {
       }
     }
     this.alreadyExistPerson = false;
+   
     this.personService.findPerson(this.findPassport.controls['passport'].value).subscribe((data:Person) =>  {
       this.person = data;
       this.canCreatePerson = false;
@@ -100,15 +98,31 @@ export class AddDriverComponent implements OnInit {
         this.personViewValue = this.person.surname + " " + this.person.name + " ";
         this.personViewValue += this.person.patronymic? this.person.patronymic : "";
         this.personBirthdateViewValue = this.person.birthdate;
-
       }
+      this.isPersonNotDie = true;
+      this.personDieViewValue = " ";
+      this.personDopViewValue = " ";
+      this.datedeath = '';
+      this.personService.findPersonDie(this.findPassport.controls['passport'].value).subscribe((tmp: PersonDie) => {
+        this.personDieViewValue="Погиб в ДТП ";
+        this.personDieViewValue+=tmp.deathdate;
+        this.personDieViewValue+=" " + tmp.cityDtp;
+        if (tmp.deathdate.localeCompare(this.data.date) > 0) {
+          this.personDopViewValue="Вы можете создать ДТП с этим человеком, до момента его гибели";
+          this.datedeath = tmp.deathdate;
+        } else {
+          this.personDopViewValue="Вы не можете создать ДТП с этим человеком";
+          this.isPersonNotDie = false;
+        }
+      });
     });
+
   }
 
   public findTS() {
     console.log(this.data);
     for (let i = 0; i < this.data.ts.length; i++) { 
-      if (this.data.ts[i].registerNumber == this.findRegisterNumber.controls['registerNumber'].value) {
+      if (this.data.ts[i].registernumber == this.findRegisterNumber.controls['registerNumber'].value) {
         this.alreadyExistTS = true;
         this.canFindTS = false;
         this.canFindErrorTS = false;
@@ -146,34 +160,9 @@ export class AddDriverComponent implements OnInit {
     this.dialogRef.close();
   }
 
-  public addPerson() : void {
-    const surname = this.personForm.controls['userSurname'].value;
-    const name = this.personForm.controls['userName'].value;
-    const patronymic = this.personForm.controls['userPatronymic'].value == '' ? null : this.personForm.controls['userPatronymic'].value;
-    const sex = this.personForm.controls['userSex'].value;
-    const birthdate = this.personForm.controls['userBirthdate'].value.format('YYYY-MM-DD');
-    const passport = this.findPassport.controls['passport'].value;
-    const driverLicense = this.personForm.controls['userDriverLicense'].value == '' ? null : this.personForm.controls['userDriverLicense'].value;
-
-    const person: Person = {
-      surname: surname,
-      name: name,
-      patronymic: patronymic,
-      sex: sex,
-      birthdate: birthdate,
-      passport: passport,
-      driverLicense: driverLicense  
-    };
-
-    this.personService.addPerson(person);
-    this.person = person;
-  }
 
   onReturnResult(): void {
-    if (this.canCreatePerson) {
-      this.addPerson();
-    }
-    this.dialogRef.close({person: this.person, ts: this.ts});
+    this.dialogRef.close({person: this.person, ts: this.ts, datedeath: this.datedeath});
   }
 
 }

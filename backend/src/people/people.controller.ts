@@ -19,6 +19,13 @@ export class PeopleController {
         return await this.peopleService.findOne(passportNumber, req.user.role)
     }
 
+    @Get('die/passport/:number')
+    @UseGuards(JwtAuthGuard)
+    async findOneDied(@Param('number') passportNumber: string, @Request() req) {
+        return await this.peopleService.findOneDied(passportNumber, req.user.role)
+    }
+
+
     @Put('passport/:number')
     @UseGuards(JwtAuthGuard)
     async update(@Param('number') passportNumber: string, @Request() req) {

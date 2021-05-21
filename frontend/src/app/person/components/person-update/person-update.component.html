@@ -11,10 +11,10 @@
 
 <mat-spinner *ngIf='isLoadData'></mat-spinner>
 
-<form *ngIf='canFindPerson' class="person-form" [formGroup]="myForm">
-    <mat-form-field class="person-full-width"[disabled]="isChanged" appearance="standard">
+<form *ngIf='canFindPerson' class="person-form" [formGroup]="personForm">
+    <mat-form-field class="person-full-width" appearance="standard">
       <mat-label>Фамилия</mat-label>
-      <input class = "my-input" matInput formControlName="userSurname" required>
+      <input class = "my-input" matInput formControlName="userSurname"  required>
     </mat-form-field>
 
     <mat-form-field class="person-full-width" appearance="standard">
@@ -55,8 +55,9 @@
     </mat-form-field>
 
     <button mat-raised-button color="primary" *ngIf='!isChanged' (click)= 'beginChanges()'>Изменить</button>
-    <button *ngIf='isChanged' mat-raised-button color="primary" [disabled]="myForm.invalid" (click)= 'updatePerson()'>Сохранить</button>
-    <button *ngIf='isChanged' mat-raised-button color="warn" (click)= 'cancelChanges()'>Отменить</button>
+    <button *ngIf='isChanged' mat-raised-button color="primary" [disabled]="personForm.invalid" (click)= 'updatePerson()'>Сохранить</button>
+    <button *ngIf='isChanged' class="btn-find" mat-raised-button color="accent" (click)= 'cancelChanges()'>Отменить</button>
+    <button *ngIf='isChanged' class="btn-find" mat-raised-button color="warn" (click)= 'deletePerson()'>Удалить</button> 
 </form>
 
 <h3 class='find-person-error' *ngIf='canFindError'>Такого человека нет в базе!</h3>

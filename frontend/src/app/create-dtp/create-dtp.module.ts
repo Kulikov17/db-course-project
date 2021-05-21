@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MaterialProxyModule } from '../material-proxy/material-proxy.module';
-import { CreateDtpComponent } from '../create-dtp/components/create-dtp.component';
+import { CreateDtpComponent } from './components/create-dtp/create-dtp.component';
 import { CreateDtpRoutingModule } from './create-dtp-routing.module';
 import { NgxDadataModule } from '@kolkov/ngx-dadata';
 import { AddDriverComponent } from './components/add-driver/add-driver.component';

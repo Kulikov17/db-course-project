@@ -13,6 +13,7 @@ import { MapStatModule } from './map-stat/map-stat.module';
 import { CreateDtpModule } from './create-dtp/create-dtp.module';
 import { PersonModule } from './person/person.module';
 import { TsModule } from './ts/ts.module';
+import { SearchDtpModule } from './search-dtp/search-dtp.module';
 import { ErrorDialogComponent } from './error-dialog/error-dialog.component';
 
 @NgModule({
@@ -33,7 +34,8 @@ import { ErrorDialogComponent } from './error-dialog/error-dialog.component';
     MapStatModule,
     CreateDtpModule,
     PersonModule,
-    TsModule
+    TsModule,
+    SearchDtpModule
   ],
   providers: [
     {

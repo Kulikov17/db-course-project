@@ -3,8 +3,8 @@ export class CreateTsDtoClient {
     brand?: string;
     model?: string;
     color?: string;
-    registerNumber: string;
-    ownerPassport: string;
+    registernumber: string;
+    ownerpassport: string;
 }
 
 export class CreateTsDtoServer {
@@ -12,6 +12,6 @@ export class CreateTsDtoServer {
     brand?: string;
     model?: string;
     color?: string;
-    registerNumber: string;
+    registernumber: string;
     owner: number;
 }

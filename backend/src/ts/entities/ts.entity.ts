@@ -3,7 +3,7 @@ import { People } from '../../people/entities/people.entity';
 
 @Entity('ts')
 export class Ts {
-    @PrimaryGeneratedColumn('rowid')
+    @PrimaryGeneratedColumn()
     id: number;
 
     @Column()
@@ -18,10 +18,10 @@ export class Ts {
     @Column({ nullable: true })
     color: String;
 
-    @Column({ unique: true })
-    registerNumber: String;
+    @Column({ nullable: true })
+    registernumber: String;
 
-    @Column({'name': 'ownerId'})
+    @Column({'name': 'ownerId', nullable: true })
     @ManyToOne(type => People, person => person.id) 
     owner: number;
 }

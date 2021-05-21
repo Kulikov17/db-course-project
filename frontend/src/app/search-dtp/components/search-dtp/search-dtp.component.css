@@ -1,0 +1,14 @@
+table {
+    width: 98%;
+}
+  
+.mat-form-field {
+    margin-top: 1%;
+    font-size: 14px;
+    width: 98%;
+}
+
+.btn-create {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}

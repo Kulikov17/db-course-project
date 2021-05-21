@@ -19,7 +19,10 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatChipsModule } from '@angular/material/chips';
-
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatTableModule } from '@angular/material/table';
+import { MatSortModule } from '@angular/material/sort';
+import { MatPaginatorModule } from '@angular/material/paginator';
 import { MY_DATE_FORMATS } from '../shared/my_date_formats';
 
 const materialModules = [
@@ -41,6 +44,10 @@ const materialModules = [
     MatProgressSpinnerModule,
     MatDialogModule,
     MatChipsModule,
+    MatSlideToggleModule,
+    MatTableModule,
+    MatSortModule,
+    MatPaginatorModule,
     FormsModule,
     ReactiveFormsModule
 ]

@@ -11,7 +11,7 @@ const routes: Routes = [
     loadChildren: () => import('./auth/auth.module').then(m => m.AuthModule),
   },
   {
-    path: 'create',
+    path: 'dtp-create',
     loadChildren: () => import('./create-dtp/create-dtp.module').then(m => m.CreateDtpModule),
   },
   {
@@ -21,6 +21,10 @@ const routes: Routes = [
   {
     path: 'ts',
     loadChildren: () => import('./ts/ts.module').then(m => m.TsModule),
+  },
+  {
+    path: 'dtp-search',
+    loadChildren: () => import('./search-dtp/search-dtp.module').then(m => m.SearchDtpModule),
   }
 ];
 

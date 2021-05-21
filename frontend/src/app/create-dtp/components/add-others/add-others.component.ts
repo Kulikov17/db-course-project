@@ -1,12 +1,13 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
-import { Person } from '../../../shared/models/person';
+import { Person, PersonDie } from '../../../shared/models/person';
 import { PersonService } from '../../../person/services/person.service';
 import * as moment from 'moment';
 
 export interface DialogData {
   people: Person[];
+  date: string;
 }
 
 @Component({
@@ -24,7 +25,10 @@ export class AddOthersComponent implements OnInit {
   public canCreatePerson = false;
   public personViewValue;
   public personBirthdateViewValue;
-
+  public isPersonNotDie = true;
+  public personDieViewValue;
+  public personDopViewValue;
+  public datedeath = '';
   public personForm : FormGroup;
 
   public maxDate = moment().format('YYYY-MM-DD');
@@ -36,19 +40,8 @@ export class AddOthersComponent implements OnInit {
     private personService: PersonService) {}
 
   ngOnInit(): void {
-      console.log(this.data);
       this.findPassport = new FormGroup({
         "passport": new FormControl("", [Validators.required,  Validators.minLength(10), Validators.pattern('^[0-9]+$')])
-      });
-      
-      this.personForm = new FormGroup({
-        "userSurname": new FormControl("", [Validators.required, Validators.pattern('^[a-zA-Zа-яёА-ЯЁ ]*$')]),
-        "userName": new FormControl("", [Validators.required, Validators.pattern('^[a-zA-Zа-яёА-ЯЁ ]*$')]),
-        "userPatronymic": new FormControl("", [Validators.pattern('^[a-zA-Zа-яёА-ЯЁ ]*$')]),
-        "userSex": new FormControl("муж"),
-        "userBirthdate": new FormControl('', [Validators.required]),
-        "userPassport": new FormControl('', [Validators.required,  Validators.minLength(10), Validators.pattern('^[0-9]+$')]),
-        "userDriverLicense": new FormControl('', [Validators.required, Validators.maxLength(10), Validators.pattern('^[0-9]+$')])
       });
   }
 
@@ -74,8 +67,23 @@ export class AddOthersComponent implements OnInit {
         this.personViewValue = this.person.surname + " " + this.person.name + " ";
         this.personViewValue += this.person.patronymic? this.person.patronymic : "";
         this.personBirthdateViewValue = this.person.birthdate;
-
       }
+      this.isPersonNotDie = true;
+      this.datedeath = '';
+      this.personDieViewValue = " ";
+      this.personDopViewValue = " ";
+      this.personService.findPersonDie(this.findPassport.controls['passport'].value).subscribe((tmp: PersonDie) => {
+        this.personDieViewValue="Погиб в ДТП ";
+        this.personDieViewValue+=tmp.deathdate;
+        this.personDieViewValue+=" " + tmp.cityDtp;
+        if (tmp.deathdate.localeCompare(this.data.date) > 0) {
+          this.personDopViewValue="Вы можете создать ДТП с этим человеком, до момента его гибели";
+          this.datedeath = tmp.deathdate;
+        } else {
+          this.personDopViewValue="Вы не можете создать ДТП с этим человеком";
+          this.isPersonNotDie = false;
+        }
+      });
     });
   }
 
@@ -89,7 +97,7 @@ export class AddOthersComponent implements OnInit {
   }
 
   onReturnResult(): void {
-    this.dialogRef.close({person: this.person});
+    this.dialogRef.close({person: this.person, datedeath: this.datedeath});
   }
 
 }

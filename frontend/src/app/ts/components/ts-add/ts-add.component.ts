@@ -52,8 +52,8 @@ export class TsAddComponent implements OnInit {
       brand: brand,
       model: model,
       color: color,
-      ownerPassport: ownerPassport,
-      registerNumber: registerNumber
+      ownerpassport: ownerPassport,
+      registernumber: registerNumber
     };
 
     this.tsService.addTs(ts);

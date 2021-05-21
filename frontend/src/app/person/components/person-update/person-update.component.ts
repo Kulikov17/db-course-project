@@ -5,8 +5,6 @@ import { PersonService } from '../../services/person.service';
 
 import * as moment from 'moment';
 
-
-
 @Component({
   selector: 'app-person-update',
   templateUrl: './person-update.component.html',
@@ -14,7 +12,7 @@ import * as moment from 'moment';
 })
 export class PersonUpdateComponent implements OnInit {
 
-  public myForm : FormGroup;
+  public personForm : FormGroup;
   public findPassport: FormGroup;
 
   public maxDate = moment().format('YYYY-MM-DD');
@@ -24,7 +22,6 @@ export class PersonUpdateComponent implements OnInit {
   public canFindPerson = false;
   public canFindError = false;
   public isLoadData = false;
-
   public isChanged = false;
 
   public person: Person;
@@ -37,25 +34,31 @@ export class PersonUpdateComponent implements OnInit {
       "passport": new FormControl("", [Validators.required,  Validators.minLength(10), Validators.pattern('^[0-9]+$')])
     });
 
-    this.myForm = new FormGroup({
-      "userSurname": new FormControl("", [Validators.required, Validators.pattern('^[a-zA-Z ]*$')]),
-      "userName": new FormControl("", [Validators.required, Validators.pattern('^[a-zA-Z ]*$')]),
-      "userPatronymic": new FormControl("", [Validators.pattern('^[a-zA-Z ]*$')]),
-      "userSex": new FormControl("муж"),
-      "userBirthdate": new FormControl('', [Validators.required]),
-      "userPassport": new FormControl('', [Validators.required,  Validators.minLength(10), Validators.pattern('^[0-9]+$')]),
-      "userDriverLicense": new FormControl('', [Validators.maxLength(10), Validators.pattern('^[0-9]+$')])
-    });
+    this.personForm = new FormGroup({
+      "userSurname": new FormControl({value: "", disabled: true}, [Validators.required, Validators.pattern('^[a-zA-Zа-яёА-ЯЁ ]*$')]),
+      "userName": new FormControl({value: "", disabled: true}, [Validators.required, Validators.pattern('^[a-zA-Zа-яёА-ЯЁ ]*$')]),
+      "userPatronymic": new FormControl({value: "", disabled: true}, [Validators.pattern('^[a-zA-Zа-яёА-ЯЁ ]*$')]),
+      "userSex": new FormControl({value: "муж", disabled: true}),
+      "userBirthdate": new FormControl({value: "", disabled: true}, [Validators.required]),
+      "userPassport": new FormControl({value: "", disabled: true}, [Validators.required,  Validators.minLength(10), Validators.pattern('^[0-9]+$')]),
+      "userDriverLicense": new FormControl({value: "", disabled: true}, [Validators.maxLength(10)])
+    } );
   }
 
-  public addPerson() : void {
-    const surname = this.myForm.controls['userSurname'].value;
-    const name = this.myForm.controls['userName'].value;
-    const patronymic = this.myForm.controls['userPatronymic'].value;
-    const sex = this.myForm.controls['userSex'].value;
-    const birthdate = this.myForm.controls['userBirthdate'].value.format('YYYY-MM-DD');
-    const passport = this.myForm.controls['userPassport'].value;
-    const driverLicense = this.myForm.controls['userDriverLicense'].value;
+  public updatePerson() {
+    const surname = this.personForm.controls['userSurname'].value;
+    const name = this.personForm.controls['userName'].value;
+    const patronymic = this.personForm.controls['userPatronymic'].value == '' ? null : this.personForm.controls['userPatronymic'].value;
+    const sex = this.personForm.controls['userSex'].value;
+    const passport = this.personForm.controls['userPassport'].value;
+    const driverlicense = this.personForm.controls['userDriverLicense'].value == '' ? null : this.personForm.controls['userDriverLicense'].value;
+
+    let birthdate;
+    try {
+      birthdate = this.personForm.controls['userBirthdate'].value.format('YYYY-MM-DD');
+    } catch {
+      birthdate = this.personForm.controls['userBirthdate'].value;
+    }
 
     const person: Person = {
       surname: surname,
@@ -64,18 +67,61 @@ export class PersonUpdateComponent implements OnInit {
       sex: sex,
       birthdate: birthdate,
       passport: passport,
-      driverLicense: driverLicense  
+      driverlicense: driverlicense  
     };
 
-    this.personService.addPerson(person);
+    this.personService.updatePerson(this.findPassport.controls['passport'].value, person).subscribe(
+      (resp: any) => { 
+        this.personService.openDialog('Операция выполнена', 'Данные о человеке успешно обновлены!');
+        this.findPassport.controls['passport'].setValue(passport);
+        this.person = person;
+        this.cancelChanges();
+      },
+      (error: any) => { 
+        const message = (error.error.message == 'Internal server error') ? "Человек с таким паспортом уже есть в системе!" : error.error.message;
+        this.personService.openDialog('Ошибка', message);
+      }
+    );
+    
+  }
+
+  public deletePerson() {
+    this.personService.deletePerson(this.findPassport.controls['passport'].value).subscribe(
+      (resp: any) => { 
+        this.personService.openDialog('Операция выполнена', 'Человек успешно удален!');
+        this.findPassport.controls['passport'].setValue('');
+        this.person = null;
+        this.fillFormPerson();
+        this.canFindError = false;
+      },
+      (error: any) => { 
+        const message = (error.error.message == 'Internal server error') ? "Человек не может быть удален, так как учавствует в ДТП или владеет машиной!" : error.error.message;
+        this.personService.openDialog('Ошибка', message);
+      }
+    );
   }
 
   public cancelChanges() {
     this.isChanged = false;
+    this.fillFieldPerson();
+    this.personForm.controls['userSurname'].disable();
+    this.personForm.controls['userName'].disable();
+    this.personForm.controls['userPatronymic'].disable();
+    this.personForm.controls['userSex'].disable();
+    this.personForm.controls['userBirthdate'].disable();
+    this.personForm.controls['userPassport'].disable();
+    this.personForm.controls['userDriverLicense'].disable();
   }
 
   public beginChanges() {
     this.isChanged = true;
+    this.personForm.controls['userSurname'].enable();
+    this.personForm.controls['userName'].enable();
+    this.personForm.controls['userPatronymic'].enable();
+    this.personForm.controls['userSex'].enable();
+    this.personForm.controls['userBirthdate'].enable();
+    this.personForm.controls['userPassport'].enable();
+    this.personForm.controls['userDriverLicense'].enable();
   }
 
   public findPerson() {
@@ -101,13 +147,13 @@ export class PersonUpdateComponent implements OnInit {
   }
 
   private fillFieldPerson() {
-    this.myForm.controls['userSurname'].setValue(this.person.surname);
-    this.myForm.controls['userName'].setValue(this.person.name);
-    this.myForm.controls['userPatronymic'].setValue(this.person.patronymic? this.person.patronymic : "");
-    this.myForm.controls['userSex'].setValue(this.person.sex);
-    this.myForm.controls['userBirthdate'].setValue(this.person.birthdate);
-    this.myForm.controls['userPassport'].setValue(this.person.passport);
-    this.myForm.controls['userDriverLicense'].setValue(this.person.driverLicense? this.person.driverLicense : "");
+    this.personForm.controls['userSurname'].setValue(this.person.surname);
+    this.personForm.controls['userName'].setValue(this.person.name);
+    this.personForm.controls['userPatronymic'].setValue(this.person.patronymic? this.person.patronymic : "");
+    this.personForm.controls['userSex'].setValue(this.person.sex);
+    this.personForm.controls['userBirthdate'].setValue(this.person.birthdate);
+    this.personForm.controls['userPassport'].setValue(this.person.passport);
+    this.personForm.controls['userDriverLicense'].setValue(this.person.driverlicense? this.person.driverlicense : "");
   }
 
 

@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { CreateDtpComponent } from './components/create-dtp.component';
+import { CreateDtpComponent } from './components/create-dtp/create-dtp.component';
 
 const routes: Routes = [
     {

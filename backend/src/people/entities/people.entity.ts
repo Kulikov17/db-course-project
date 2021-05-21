@@ -1,9 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, Generated } from 'typeorm';
+import { AffectedOthers } from 'src/dtp/entities/affectedothers.entity';
+import { AffectedDrivers } from 'src/dtp/entities/affecteddrivers.entity';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { Ts } from '../../ts/entities/ts.entity';
 
 @Entity('people')
 export class People {
-    @PrimaryGeneratedColumn('rowid')
+    @PrimaryGeneratedColumn('increment')
     id: number;
 
     @Column()
@@ -25,7 +27,13 @@ export class People {
     passport: String;
 
     @Column({ nullable: true })
-    driverLicense: String;
+    driverlicense: String;
+
+    @OneToMany(type => AffectedDrivers, affecteddrivers => affecteddrivers.person) 
+    affecteddrivers: AffectedDrivers[];
+
+    @OneToMany(type => AffectedOthers, affectedothers => affectedothers.person) 
+    affectedothers: AffectedOthers[];
 
     @OneToMany(type => Ts, ts => ts.owner, { nullable: false }) 
     ts: Ts[];

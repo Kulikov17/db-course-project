@@ -1,22 +1,22 @@
-import { Body, Controller, Get, Post, Req } from '@nestjs/common';
+import { Controller, Get, Post, Request, UseGuards } from '@nestjs/common';
 import { DtpService } from './dtp.service';
-import { Dtp } from './dtp.entity';
-import { Roles } from '../roles.decorator';
-import { Reflector } from '@nestjs/core';
+import { PeopleService } from '../people/people.service';
+import { TsService } from '../ts/ts.service';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('dtp')
 export class DtpController {
-    constructor(private dtpService: DtpService,
-        private readonly reflector: Reflector) {}
+    constructor(private dtpService: DtpService) {}
 
     @Get()
-    @Roles('admin','user')
-    async findAll() {;
-        return await this.dtpService.getAll();
+    @UseGuards(JwtAuthGuard)
+    async findAll(@Request() req) {;
+        return await this.dtpService.findAllDtp(req.user.role);
     }
 
-    /*@Post()
-    async create(@Body() newDtp: Dtp) {
-        return await this.dtpService.create(newDtp);
-    }*/
+    @Post()
+    @UseGuards(JwtAuthGuard)
+    async create(@Request() req) {
+        return await this.dtpService.create(req.body, req.user.role);
+    }
 }

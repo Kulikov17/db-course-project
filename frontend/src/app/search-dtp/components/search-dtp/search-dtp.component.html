@@ -1,0 +1,65 @@
+<mat-form-field>
+    <mat-label>Поиск ДТП</mat-label>
+    <input matInput (keyup)="applyFilter($event)" placeholder="Введите ключевые слова" #input>
+</mat-form-field>
+  
+<div>
+    <table mat-table [dataSource]="dataSource" matSort>
+      <ng-container matColumnDef="id">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> ID </th>
+        <td mat-cell *matCellDef="let row"> {{row.id}}</td>
+      </ng-container>
+  
+      <ng-container matColumnDef="dateDtp">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Дата </th>
+        <td mat-cell *matCellDef="let row"> {{row.dateDtp}}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="timeDtp">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Время </th>
+        <td mat-cell *matCellDef="let row"> {{row.timeDtp}}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="regionDtp">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Регион </th>
+        <td mat-cell *matCellDef="let row"> {{row.regionDtp}}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="cityDtp">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Населенный пункт </th>
+        <td mat-cell *matCellDef="let row"> {{row.cityDtp}}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="typeDtp">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Категории ДТП </th>
+        <td mat-cell *matCellDef="let row"> {{row.typeDtp}}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="affected">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Пострадавшие </th>
+        <td mat-cell *matCellDef="let row"> {{row.affected}}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="deleteButton" >
+		<th mat-header-cell *matHeaderCellDef ></th>
+		<td mat-cell *matCellDef="let row"><button mat-icon-button (click)="onSelectClickedEditor(row)">
+            <mat-icon>edit</mat-icon>
+          </button></td>
+	  </ng-container>
+
+	  <tr mat-header-row *matHeaderRowDef="displayedColumns.concat(['deleteButton'])"></tr>
+	   <tr mat-row *matRowDef="let row; columns: displayedColumns.concat(['deleteButton']);"></tr>
+  
+  
+      <!-- Row shown when there is no matching data. -->
+      <tr class="mat-row" *matNoDataRow>
+        <td class="mat-cell" colspan="7">Нет таких данных по ключевым словам "{{input.value}}"
+            <br>
+            <button class='btn-create' routerLink="/dtp-create" routerLinkActive="active" mat-raised-button color="primary">Создать ДТП</button>
+        </td>
+      </tr>
+    </table>
+
+    <mat-paginator [length]="100" [pageSize]="13"></mat-paginator>
+</div>
+

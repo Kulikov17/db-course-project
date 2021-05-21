@@ -5,5 +5,5 @@ export class CreatePersonDto {
     sex: string;
     birthdate: string;
     passport: string;
-    driverLicense?: string;
+    driverlicense?: string;
 }
