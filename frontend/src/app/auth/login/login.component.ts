@@ -12,7 +12,7 @@ export class LoginComponent implements OnInit {
   public hide = true;
   public loginControl : FormControl;
   public passwordControl : FormControl;
-  public validUser = true;
+  
   constructor(private authService: AuthService) { }
 
   ngOnInit(): void {
@@ -22,7 +22,6 @@ export class LoginComponent implements OnInit {
 
   public login() {
     this.authService.login(this.loginControl.value, this.passwordControl.value);
-    this.validUser = this.authService.signInAuth;
   }
 
 }

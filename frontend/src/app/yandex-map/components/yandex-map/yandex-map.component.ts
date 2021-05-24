@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { DtpService } from '../../../dtp/services/dtp.service';
 import { Dtp } from 'src/app/shared/models/dtp';
+import { findLast } from '@angular/compiler/src/directive_resolver';
 
 declare var ymaps:any;
 
@@ -14,23 +15,23 @@ export class YandexMapComponent implements OnInit {
 
   public map :any;
   public dtp: any;
+  public data: Dtp;
   constructor(private http: HttpClient, private dtpService: DtpService) {
     
   }
 
-  loadDtp() {
-    return this.dtpService.getAllDtp()
+  findIndex(index: number) {
+      return index;
   }
 
   ngOnInit(): void {
     this.dtpService.getAllDtp().subscribe((data:Dtp) =>  {
-        console.log(data);
+        this.data = data;
         this.loadMaps(data);
     });
-    }
+  }
 
     loadMaps(data: Dtp) {
-        console.log(data);
     ymaps.ready(function () {
         var map = new ymaps.Map('map', {
             center: [65, 100],
@@ -62,14 +63,36 @@ export class YandexMapComponent implements OnInit {
         lang: 'ru',
         
     }).then(function (result) {
+        function findIndex(data, content) {
+            let count = [0, 0, 0];
+            data.forEach(item => {
+                if (item.regionDtp == content) {
+                    count[0] += 1;
+                    item.affecteddrivers.forEach(aff => {
+                        if (aff.health == 'погиб') {
+                            count[1] += 1;
+                        } else if (aff.health == 'ранен') {
+                            count[2] += 1;
+                        }
+                    });
+                    item.affectedothers.forEach(aff => {
+                        if (aff.health == 'погиб') {
+                            count[1] += 1;
+                        } else if (aff.health == 'ранен') {
+                            count[2] += 1;
+                        }
+                    });
+                }
+            });
+            return count;
+        }
         console.log( result.geoObjects._collectionComponent._baseArrayComponent)
-       // console.log(await this.dtpService.dtp);
         result.geoObjects._collectionComponent._baseArrayComponent._children.forEach(function (feature) {
             var content = feature.properties._data.hintContent 
         
-            console.log(data.dateDtp);
-            // Для каждого субъекта РФ зададим подсказку с названием федерального округа, которому он принадлежит.
-            feature.properties._data.hintContent = content + data[0].dateDtp;
+            let res = findIndex(data, content);
+
+            feature.properties._data.hintContent = content + "<br>Кол-во ДТП: " +  res[0] + "<br>Кол-во погибших: " + res[1] + "<br>Кол-во раненных: " + res[2];
         });
         console.log(result.geoObjects._collectionComponent._baseArrayComponent._children)
         map.geoObjects.add(result.geoObjects)

@@ -19,12 +19,13 @@ export class Typedtp {
 }
 
 export class Dtp {
+    id?: number;
     dateDtp: string;
     timeDtp: string;
     regionDtp: string;
     cityDtp: string;
     descriptionDtp?: string;
-    dt: Typedtp[];
-    affectedDrivers: AffectedDrivers[];
-    affectedOthers: AffectedOthers[];
+    dt?: Typedtp[];
+    affectedDrivers?: AffectedDrivers[];
+    affectedOthers?: AffectedOthers[];
 }

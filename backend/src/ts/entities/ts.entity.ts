@@ -1,3 +1,4 @@
+import { AffectedDrivers } from 'src/dtp/entities/affecteddrivers.entity';
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne } from 'typeorm';
 import { People } from '../../people/entities/people.entity';
 
@@ -24,4 +25,7 @@ export class Ts {
     @Column({'name': 'ownerId', nullable: true })
     @ManyToOne(type => People, person => person.id) 
     owner: number;
+
+    @OneToMany(type => AffectedDrivers, affecteddrivers => affecteddrivers.ts) 
+    affecteddrivers: AffectedDrivers[];
 }

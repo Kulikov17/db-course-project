@@ -4,7 +4,7 @@ import { Dtp } from './dtp.entity';
 
 @Entity('affectedothers')
 export class AffectedOthers {
-    @PrimaryGeneratedColumn('rowid')
+    @PrimaryGeneratedColumn()
     id: number;
 
     @Column()

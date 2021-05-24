@@ -15,19 +15,18 @@ export class TsService {
 
     public TsConvertToTsDto(source: Ts, ownerpassport: String): TsDto {
         const target = new TsDto();
+        target.id = source.id;
         target.type = source.type;
         target.brand = source.brand;
         target.model = source.model;
-        target.color = source.model;
+        target.color = source.color;
         target.registernumber = source.registernumber;
         target.ownerpassport = ownerpassport;
         return target;
     }
 
     public async CreateTsDtoClientConvertToCreateTsDtoServer(source: CreateTsDtoClient, role: string): Promise<CreateTsDtoServer> {
-        console.log(source);
         const findPerson = await this.people.findOne(source.ownerpassport, role);
-        console.log(findPerson);
         const target = new CreateTsDtoServer();
         target.type = source.type
         target.brand = source.brand
@@ -93,6 +92,7 @@ export class TsService {
 
     async update(findRegisterNumber: string, updateTs: UpdateTsDtoClient,  role: string): Promise<Ts> {
         const updateTsServer = await this.UpdateTsDtoClientConvertToUpdateTsDtoServer(updateTs, role);
+        console.log(updateTsServer);
 
         const connection = await this.configs.getConnection(role);
         let res;

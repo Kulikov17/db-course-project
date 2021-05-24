@@ -13,7 +13,9 @@ import { MapStatModule } from './map-stat/map-stat.module';
 import { CreateDtpModule } from './create-dtp/create-dtp.module';
 import { PersonModule } from './person/person.module';
 import { TsModule } from './ts/ts.module';
+import { UserInfoModule } from './user-info/user-info.module';
 import { SearchDtpModule } from './search-dtp/search-dtp.module';
+import { TableStatModule } from './table-stat/table-stat.module';
 import { ErrorDialogComponent } from './error-dialog/error-dialog.component';
 
 @NgModule({
@@ -32,10 +34,12 @@ import { ErrorDialogComponent } from './error-dialog/error-dialog.component';
     ReactiveFormsModule,
     AuthModule,
     MapStatModule,
+    SearchDtpModule,
+    TableStatModule,
     CreateDtpModule,
     PersonModule,
     TsModule,
-    SearchDtpModule
+    UserInfoModule
   ],
   providers: [
     {

@@ -4,11 +4,12 @@ export interface Typedtp {
 }
 
 export interface AffectedDTP {
+    dtpId?: number;
     passport: string;
     type: string;
     health: string;
     guilt: string;
-    tsRegisterNumber?: string;
+    registernumber?: string;
 }
 
 export class AddDtp {
@@ -17,6 +18,5 @@ export class AddDtp {
     regionDtp: string;
     cityDtp: string;
     descriptionDtp?: string;
-    typeDtp: Typedtp[];
-    affected: AffectedDTP[];
+    dt: Typedtp[];
 }

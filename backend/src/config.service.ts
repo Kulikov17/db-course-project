@@ -5,7 +5,7 @@ import * as path from 'path';
 @Injectable()
 export class ConfigService {
   async getConnection(role: string): Promise<Connection> | null {
-    if (role == 'admin') {
+    if (role == 'администратор') {
       return await createConnection({
         name: 'admin',
         type: 'postgres',
@@ -17,7 +17,7 @@ export class ConfigService {
         entities: [path.join(__dirname, "**/*.entity{.ts,.js}")],
         synchronize: true
       });
-    } else if (role == 'editor') {
+    } else if (role == 'сотрудник') {
       return await createConnection({
         name: 'admin',
         type: 'postgres',

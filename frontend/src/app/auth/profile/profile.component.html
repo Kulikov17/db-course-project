@@ -1,6 +1,38 @@
-<p>profile works!</p>
-<p>
-    If you can see this page, you are logged in!
-</p>
+<br>
+<br>
+<h2>Здравствуйте, {{authService.getUserName()}}!</h2>
 
-<button mat-button color="primary" (click)= "logout()">Выйти</button>
+<h3 *ngIf=!authService.isLoggedAdmin()>
+Вы являетесь сотрудником ГИБДД. Вы можете создавать, редактировать, просматривать ДТП.
+</h3>
+
+<h3 *ngIf=authService.isLoggedAdmin()>
+    Вы являетесь администратором сайта ГИБДД. Вы можете создавать, редактировать, просматривать ДТП. Вы можете добавлять сотрудников и назначать им права.
+</h3>
+
+<button  mat-raised-button color="primary" (click)= "logout()">Выйти</button>
+
+<br>
+<br>
+<br>
+<h3>Установить новый пароль</h3>
+
+<form class="my-form" [formGroup]="passwordForm">
+    <mat-form-field class="my-full-width" appearance="standard">
+        <mat-label>Введите пароль</mat-label>
+        <input matInput formControlName="password" [type]="hide ? 'password' : 'text'">
+        <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hide">
+        <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
+        </button>
+    </mat-form-field>
+  
+    <mat-form-field class="my-full-width" appearance="standard">
+      <mat-label>Введите новый пароль</mat-label>
+      <input matInput formControlName="newPassword" [type]="hide ? 'password' : 'text'">
+      <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hide">
+      <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
+      </button>
+    </mat-form-field>
+
+    <button mat-raised-button color="primary" [disabled]="passwordForm.invalid" (click)= 'updatePassword()'>Изменить пароль</button>
+</form>

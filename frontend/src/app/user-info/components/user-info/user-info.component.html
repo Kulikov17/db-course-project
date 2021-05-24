@@ -1,0 +1,23 @@
+<button mat-icon-button color="primary" routerLink="/users" routerLinkActive="active">
+    <mat-icon>reply</mat-icon>
+</button>
+<br>
+<br>
+<h1>Логин: {{username}}</h1>
+
+<mat-radio-group [formControl]="role">
+    <mat-label>Роль</mat-label>
+    <mat-radio-button color="primary" class= "my-radiobtn" value="администратор">Администратор</mat-radio-button>
+    <mat-radio-button color="primary" class= "my-radiobtn" value="сотрудник">Сотрудник</mat-radio-button>
+</mat-radio-group>
+
+<br> 
+<br> 
+
+<button mat-raised-button  color="primary" *ngIf='!isChanged' (click)= 'beginChanges()'>Изменить</button>
+<button mat-raised-button class="btn-find" color="accent" *ngIf='!isChanged' (click)= 'resetPassword()'>Сброс пароля</button>
+<button class="btn-find" mat-raised-button color="warn" *ngIf='!isChanged' (click)= 'deleteUser()'>Удалить</button>
+
+<button *ngIf='isChanged' mat-raised-button color="primary"  (click)= 'saveChanges()'>Сохранить</button>
+<button *ngIf='isChanged' class="btn-find" mat-raised-button color="accent" (click)= 'cancelChanges()'>Отменить</button>
+

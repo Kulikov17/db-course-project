@@ -9,6 +9,8 @@ import * as moment from 'moment';
 import { AddDtp, Typedtp, AffectedDTP } from 'src/app/shared/models/addDtp';
 import { AddOthersComponent } from '../add-others/add-others.component';
 import { DtpService } from '../../../dtp/services/dtp.service';
+import { ThrowStmt } from '@angular/compiler';
+import { ErrorDialogComponent } from 'src/app/error-dialog/error-dialog.component';
 
 interface TypeTs {
   value: string;
@@ -116,7 +118,7 @@ export class CreateDtpComponent implements OnInit {
     });
   }
  
-  constructor(private _formBuilder: FormBuilder, public dialog: MatDialog, private dtpSevice: DtpService) { }
+  constructor(private _formBuilder: FormBuilder, public dialog: MatDialog, private dtpService: DtpService) { }
 
   manageCountAffected(subtypeDtp: TypeDtp) {
     if (subtypeDtp.completed) {
@@ -244,7 +246,25 @@ export class CreateDtpComponent implements OnInit {
     console.log(addressData);
     this.addressInvalid = (addressData.city || addressData.settlement) ? false : true;
     this.cityDTP = addressData.city? addressData.city: addressData.settlement;
+    if (addressData.region == "Саха /Якутия/") {
+      this.regionDTP = "Якутия";
+    } else if (addressData.region == "Коми") {
+      this.regionDTP = "Республика Коми";
+    } else if (addressData.region == "Ханты-Мансийский Автономный округ - Югра" ) {
+      this.regionDTP = "Ханты-Мансийский автономный округ";
+    } else if (addressData.region == "Ханты-Мансийский Автономный округ - Югра" ) {
+      this.regionDTP = "Ханты-Мансийский автономный округ";
+    } else if (addressData.region == "Карелия" ) {
+      this.regionDTP = "Республика Карелия";
+    } else if (addressData.region == "Карелия" ) {
+      this.regionDTP = "Республика Карелия";
+    } else if (addressData.region == "Алтай") {
+      this.regionDTP = "Республика Алтай";
+    } else if (addressData.region_type_full == "автономный округ" || addressData.region_type_full == "край" || addressData.region_type_full == "автономная область" || addressData.region_type_full == "область" ) {
+    this.regionDTP = addressData.region + " " + addressData.region_type_full;
+    } else {
     this.regionDTP = addressData.region;
+    }
   }
 
   clearAll() {
@@ -260,6 +280,7 @@ export class CreateDtpComponent implements OnInit {
     this.walkers = [];
     this.cyclists = [];
     this.couchers = [];
+    this.arrTypeDtp = [];
     this.requiredCountWalkers = 0;
     this.requiredCountCyclists = 0;
     this.requiredCountCouchers = 0;
@@ -278,6 +299,7 @@ export class CreateDtpComponent implements OnInit {
     this.couchers = [];
     this.arrPeople = [];
     this.arrTs = [];
+    this.arrTypeDtp = [];
     this.requiredCountWalkers = 0;
     this.requiredCountCyclists = 0;
     this.requiredCountCouchers = 0;
@@ -289,10 +311,9 @@ export class CreateDtpComponent implements OnInit {
   }
 
   addDTP() {
-    alert('dtp добавлено!');
-
     const typesDtp: Typedtp[] = []
-    const affectedDtp: AffectedDTP[] = []
+    const affectedDrivers: AffectedDTP[] = []
+    const affectedOthers: AffectedDTP[] = []
     
     this.arrTypeDtp.forEach((item: any)=> {
       if (item == 'Столкновение') {
@@ -359,16 +380,16 @@ export class CreateDtpComponent implements OnInit {
     });
 
     this.drivers.forEach((item: any, index: number)=> {
-      console.log(item[2]);
-      const curGuilt = item[2].value ? 'виновен': 'невиновен'
+    
+      const curGuilt = item[2] ? 'виновен': 'невиновен'
       const newAffected: AffectedDTP = {
         passport: item[0].passport,
         type: 'водитель',
         health: item[4].value,
         guilt: curGuilt,
-        tsRegisterNumber: this.arrTs[index].registerNumber
+        registernumber: this.arrTs[index].registernumber
       };
-      affectedDtp.push(newAffected)
+      affectedDrivers.push(newAffected)
     });
     this.passengers.forEach((item: any)=> {
       const curGuilt = item[2] ? 'виновен': 'невиновен'
@@ -378,7 +399,7 @@ export class CreateDtpComponent implements OnInit {
         health: item[4].value,
         guilt: curGuilt
       };
-      affectedDtp.push(newAffected)
+      affectedOthers.push(newAffected)
     });
     this.walkers.forEach((item: any)=> {
       const curGuilt = item[2]? 'виновен': 'невиновен'
@@ -388,7 +409,7 @@ export class CreateDtpComponent implements OnInit {
         health: item[4].value,
         guilt: curGuilt
       };
-      affectedDtp.push(newAffected)
+      affectedOthers.push(newAffected)
     });
     this.couchers.forEach((item: any)=> {
       const curGuilt = item[2] ? 'виновен': 'невиновен'
@@ -398,7 +419,7 @@ export class CreateDtpComponent implements OnInit {
         health: item[4].value,
         guilt: curGuilt
       };
-      affectedDtp.push(newAffected)
+      affectedOthers.push(newAffected)
     });
     this.cyclists.forEach((item: any)=> {
       const curGuilt = item[2] ? 'виновен': 'невиновен'
@@ -408,7 +429,7 @@ export class CreateDtpComponent implements OnInit {
         health: item[4].value,
         guilt: curGuilt
       };
-      affectedDtp.push(newAffected)
+      affectedOthers.push(newAffected)
     });
 
     const newDtp: AddDtp = {
@@ -417,16 +438,42 @@ export class CreateDtpComponent implements OnInit {
       regionDtp: this.regionDTP,
       cityDtp: this.cityDTP,
       descriptionDtp: this.descriptionDTP.value,
-      affected: affectedDtp,
-      typeDtp: typesDtp
+      dt: typesDtp
     };
 
     console.log(newDtp);
 
-    this.dtpSevice.addDtp(newDtp);
-    this.clearAll();
+    this.dtpService.addDtp(newDtp).subscribe(
+      (resp: any) => { 
+         console.log(resp);
+         affectedDrivers.forEach((item: any) => {item.dtpId = resp.dtpId});
+         affectedOthers.forEach((item: any) => {item.dtpId = resp.dtpId});
+         console.log(affectedDrivers);
+         this.dtpService.addAffectedDrivers(affectedDrivers).subscribe(
+           (resp: any) => {
+             if (affectedOthers.length > 0) {
+              this.dtpService.addAffectedOthers(affectedOthers).subscribe(
+                (resp: any) => { this.openDialog('Операция выполнена', 'ДТП успешно добавлено!');}
+              )
+             } else {
+              this.openDialog('Операция выполнена', 'ДТП успешно добавлено!');
+             }
+           }
+         )
+      }
+    );
   }
 
+  public openDialog(title: string, info: string) {
+    const dialogRef = this.dialog.open(ErrorDialogComponent, {
+      data: {
+        title: title,
+        info: info
+      }});
+
+    dialogRef.afterClosed().subscribe(() => {this.clearAll()});
+  }  
+  
   public changeGuilt(person: any) {
     person[2] = person[2]? false: true;
   }

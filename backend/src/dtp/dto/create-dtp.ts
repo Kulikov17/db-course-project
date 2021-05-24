@@ -1,24 +1,15 @@
 import { Typedtp } from '../entities/typedtp.entity';
 
-export interface AffectedDTP {
+export interface CreateAffectedDtpDto {
+    dtpId: number;
     passport: string;
     type: string;
     health: string;
     guilt: string;
-    tsRegisterNumber?: string;
+    registernumber?: string;
 }
 
-export class CreateDtpDtoClient {
-    dateDtp: string;
-    timeDtp: string;
-    regionDtp: string;
-    cityDtp: string;
-    descriptionDtp?: string;
-    typeDtp: Typedtp[];
-    affected: AffectedDTP[];
-}
-
-export class CreateDtpDtoServer {
+export class CreateDtpDto {
     dateDtp: string;
     timeDtp: string;
     regionDtp: string;

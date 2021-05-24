@@ -1,23 +1,26 @@
+import { ThrowStmt } from '@angular/compiler';
 import { OnInit, AfterViewInit, Component, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { Router } from '@angular/router';
+import { DtpService } from 'src/app/dtp/services/dtp.service';
 
-export interface DtpData {
-  id: string;
+export interface Typedtp {
+  id: number;
+  description: string;
+}
+
+export class DtpData {
+  dtpId: number;
   dateDtp: string;
   timeDtp: string;
   regionDtp: string;
   cityDtp: string;
-  typeDtp: string;
-  affectedDtp: string;
+  dt: Typedtp[];
+  dtView?: string;
 }
 
-const NAMES: string[] = [
-  'Maia', 'Asher', 'Olivia', 'Atticus', 'Amelia', 'Jack', 'Charlotte', 'Theodore', 'Isla', 'Oliver',
-  'Isabella', 'Jasper', 'Cora', 'Levi', 'Violet', 'Arthur', 'Mia', 'Thomas', 'Elizabeth'
-];
 
 @Component({
   selector: 'app-search-dtp',
@@ -25,18 +28,31 @@ const NAMES: string[] = [
   styleUrls: ['./search-dtp.component.css']
 })
 export class SearchDtpComponent implements AfterViewInit {
-  displayedColumns: string[] = ['id', 'dateDtp', 'timeDtp', 'regionDtp', 'cityDtp', 'typeDtp', 'affected'];
+  displayedColumns: string[] = ['dateDtp', 'timeDtp', 'regionDtp', 'cityDtp', 'typeDtp'];
   dataSource: MatTableDataSource<DtpData>;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
 
-  constructor(private router: Router) {
-    // Create 100 users
-    const users = Array.from({length: 100}, (_, k) => createNewUser(k + 1));
+  loadUsers() {
+    this.dtpService.getAllDtp().subscribe((resp: DtpData[]) => {
+      this.dataSource = new MatTableDataSource(resp);
+      this.dataSource.data.forEach((item) => {
+        if (item.dt) {
+          let str = '';
+          item.dt.forEach((category) => {
+            str+=category.description+" ";
+          });
+          item.dtView = str;
+        }
+      })
 
-    // Assign the data to the data source for the table to render
-    this.dataSource = new MatTableDataSource(users);
+      this.dataSource.paginator = this.paginator;
+      this.dataSource.sort = this.sort;
+    });
+  }
+  constructor(private dtpService: DtpService, private router: Router) {
+    this.loadUsers();
   }
 
   ngAfterViewInit() {
@@ -52,28 +68,21 @@ export class SearchDtpComponent implements AfterViewInit {
       this.dataSource.paginator.firstPage();
     }
   }
-
+  
   resetPaging(): void {
     this.paginator.pageIndex = 0;
   }
 
+
   onSelectClickedEditor(row: any): void {
-    const url = `dtp-search/${row.id}`;
-    this.router.navigateByUrl(url);
+    this.router.navigate(
+      ['/dtp-search', row.dtpId], 
+      {
+          queryParams:{
+              'dtpId': row.dtpId, 
+          }
+      }
+  );
   }
-
 }
-
-function createNewUser(id: number): DtpData {
-  return {
-    id: id.toString(),
-    dateDtp: '2020-02-08'+id.toString(),
-    timeDtp: '21:00'+id.toString(),
-    regionDtp: 'Республика Мордовия'+id.toString(),
-    cityDtp: 'Саранск'+id.toString(),
-    typeDtp: 'Столкновение, Опрокидывание'+id.toString(),
-    affectedDtp: 'Куликов Дмитрий'+id.toString()
-  };
-}
-
 

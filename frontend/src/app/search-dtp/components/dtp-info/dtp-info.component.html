@@ -1,1 +1,28 @@
-<p>dtp-info works!</p>
+<button mat-icon-button color="primary" routerLink="/dtp-search" routerLinkActive="active">
+    <mat-icon>reply</mat-icon>
+</button>
+<br>
+<br>
+
+<h1>Информация о ДТП</h1>
+<h4>Дата: {{dateDtp}}</h4>
+<h4>Время: {{timeDtp}}</h4>
+<h4>Регион: {{regionDtp}}</h4>
+<h4>Населенный пункт: {{cityDtp}}</h4>
+<h4>Категории ДТП: </h4>
+<li *ngFor="let type of typeDtp">{{type.description}}</li>
+
+<mat-form-field class="full-width">
+    <mat-label>Информация о ДТП</mat-label>
+    <textarea matInput [formControl]="description"></textarea>
+</mat-form-field>
+
+<br> 
+<br> 
+
+<button mat-raised-button  color="primary" *ngIf='!isChanged' (click)= 'beginChanges()'>Изменить</button>
+<button class="btn-find" mat-raised-button color="warn" *ngIf='!isChanged' (click)= 'deleteDtp()'>Удалить</button>
+
+<button *ngIf='isChanged' mat-raised-button color="primary"  (click)= 'saveChanges()'>Сохранить</button>
+<button *ngIf='isChanged' class="btn-find" mat-raised-button color="accent" (click)= 'cancelChanges()'>Отменить</button>
+

@@ -25,6 +25,14 @@ const routes: Routes = [
   {
     path: 'dtp-search',
     loadChildren: () => import('./search-dtp/search-dtp.module').then(m => m.SearchDtpModule),
+  },
+  {
+    path: 'table-stat',
+    loadChildren: () => import('./table-stat/table-stat.module').then(m => m.TableStatModule),
+  },
+  {
+    path: 'users',
+    loadChildren: () => import('./user-info/user-info.module').then(m => m.UserInfoModule),
   }
 ];
 

@@ -3,17 +3,23 @@
         <a routerLink="/dtp" routerLinkActive="active">
             <mat-icon>public</mat-icon>
         </a>
-        <a routerLink="/dtp-search" routerLinkActive="active">
+        <a routerLink="/tablestat" routerLinkActive="active">
+            <mat-icon>list_alt</mat-icon>
+        </a>
+        <a *ngIf=auth.isLoggedIn() routerLink="/dtp-search" routerLinkActive="active">
             <mat-icon>search</mat-icon>
         </a>
-        <a routerLink="/dtp-create" routerLinkActive="active">
+        <a *ngIf=auth.isLoggedIn() routerLink="/dtp-create" routerLinkActive="active">
             <mat-icon>book</mat-icon>
         </a>
-        <a routerLink="/people" routerLinkActive="active">
+        <a *ngIf=auth.isLoggedIn()  routerLink="/people" routerLinkActive="active">
             <mat-icon>wc</mat-icon>
         </a>
-        <a routerLink="/ts" routerLinkActive="active">
+        <a *ngIf=auth.isLoggedIn() routerLink="/ts" routerLinkActive="active">
             <mat-icon>commute</mat-icon>
+        </a>
+        <a *ngIf=auth.isLoggedAdmin() routerLink="/users" routerLinkActive="active">
+            <mat-icon>recent_actors</mat-icon>
         </a>
         <a routerLink="/profile" routerLinkActive="active">
             <mat-icon>person</mat-icon>

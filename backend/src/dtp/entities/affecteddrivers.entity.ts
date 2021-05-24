@@ -5,7 +5,7 @@ import { Dtp } from './dtp.entity';
 
 @Entity('affecteddrivers')
 export class AffectedDrivers {
-    @PrimaryGeneratedColumn('rowid')
+    @PrimaryGeneratedColumn()
     id: number;
 
     @Column()
@@ -19,7 +19,7 @@ export class AffectedDrivers {
     @JoinColumn()
     dtp: Dtp;
 
-    @OneToOne(type => Ts)
+    @ManyToOne(type => Ts, ts => ts.id) 
     @JoinColumn()
     ts: Ts;
 

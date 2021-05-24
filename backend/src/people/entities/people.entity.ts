@@ -5,7 +5,7 @@ import { Ts } from '../../ts/entities/ts.entity';
 
 @Entity('people')
 export class People {
-    @PrimaryGeneratedColumn('increment')
+    @PrimaryGeneratedColumn()
     id: number;
 
     @Column()

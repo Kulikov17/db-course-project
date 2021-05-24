@@ -1,0 +1,53 @@
+<mat-form-field>
+    <mat-label>Поиск</mat-label>
+    <input matInput (keyup)="applyFilter($event)" placeholder="Введите ключевые слова" #input>
+</mat-form-field>
+  
+<div>
+    <table mat-table [dataSource]="dataSource" matSort>
+      <ng-container matColumnDef="username">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Логин </th>
+        <td mat-cell *matCellDef="let row"> {{row.username}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="role">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header> Роль </th>
+        <td mat-cell *matCellDef="let row"> {{row.role}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="editButton">
+		<th mat-header-cell *matHeaderCellDef ></th>
+		<td mat-cell *matCellDef="let row"><button mat-icon-button (click)="onSelectClickedEditor(row)">
+            <mat-icon>edit</mat-icon>
+          </button></td>
+	  </ng-container>
+
+	  <tr mat-header-row *matHeaderRowDef="displayedColumns.concat(['editButton'])"></tr>
+	  <tr mat-row *matRowDef="let row; columns: displayedColumns.concat(['editButton']);"></tr>
+  
+      <tr class="mat-row" *matNoDataRow>
+        <td class="mat-cell" colspan="7">Нет таких данных по ключевым словам "{{input.value}}"
+        </td>
+      </tr>
+    </table>
+
+    <mat-paginator [length]="dataSource.data.length" [pageSize]="5"></mat-paginator>
+</div>
+
+
+<form [formGroup]="newUser">
+    <mat-form-field class="person-find" appearance="standard">
+        <mat-label>Введите имя пользователя</mat-label>
+        <input matInput formControlName="username" required>
+    </mat-form-field>
+    <br>
+    <mat-radio-group formControlName="role">
+        <mat-label>Роль:</mat-label>
+        <mat-radio-button color="primary" class= "my-radiobtn" value="администратор">Администратор</mat-radio-button>
+        <mat-radio-button color="primary" class= "my-radiobtn" value="сотрудник">Сотрудник</mat-radio-button>
+    </mat-radio-group>
+    <br>
+    <br>
+    <p>Служебный пароль: Qwerty123</p>
+    <button mat-raised-button color="primary" [disabled]="newUser.invalid" (click)='addUser()'>Добавить пользователя</button>
+</form>

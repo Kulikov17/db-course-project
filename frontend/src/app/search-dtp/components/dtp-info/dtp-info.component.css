@@ -1,0 +1,6 @@
+.full-width {
+    margin-top: 10px;
+    min-width: 150px;
+    max-width: 385px;
+    width: 100%;
+}

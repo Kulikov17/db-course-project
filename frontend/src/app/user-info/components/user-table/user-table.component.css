@@ -1,0 +1,28 @@
+table {
+    width: 98%;
+}
+  
+.mat-form-field {
+    margin-top: 1%;
+    font-size: 14px;
+    width: 98%;
+}
+
+.btn-create {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.my-radiobtn {
+    margin-left: 2%; 
+}
+
+.btn-find {
+    margin-left: 1%;
+}
+
+.person-find {
+    min-width: 150px;
+    max-width: 500px;
+    width: 100%;
+}

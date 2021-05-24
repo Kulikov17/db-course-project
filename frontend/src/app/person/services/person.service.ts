@@ -55,6 +55,10 @@ export class PersonService {
   public findPerson(passport: string): Observable<Person> {
     return this.http.get<Person>(this.url + '/people/passport/' + passport)
   }
+
+  public findPersonById(id: number): Observable<Person> {
+    return this.http.get<Person>(this.url + '/people/' + id)
+  }
   
   public findPersonDie(passport: string): Observable<PersonDie> {
     return this.http.get<PersonDie>(this.url + '/people/die/passport/' + passport)

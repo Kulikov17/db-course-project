@@ -4,6 +4,7 @@ import { People } from './entities/people.entity';
 import { CreatePersonDto } from './dto/create-person';
 import { UpdatePersonDto } from './dto/update-person';
 import { FindDiePersonDto } from './dto/find-die-person';
+import e from 'express';
 
 @Injectable()
 export class PeopleService {
@@ -65,20 +66,35 @@ export class PeopleService {
         let res = new FindDiePersonDto();
         try {
             const stateHealth = 'погиб'
-            const find = await connection.getRepository(People).createQueryBuilder("people")
+            let find = await connection.getRepository(People).createQueryBuilder("people")
             .innerJoinAndSelect("people.affectedothers", "affectedothers")
             .innerJoinAndSelect("affectedothers.dtp", "dtp")
             .where('people.passport = :findPassport', { findPassport })
             .andWhere('affectedothers.health = :stateHealth', { stateHealth })
-            .getOneOrFail()
+            .getOne()
 
-            res.surname = find.surname;
-            res.name = find.name;
-            res.birthdate = find.birthdate;
-            res.deathdate = find.affectedothers[0].dtp.dateDtp;
-            res.regionDtp = find.affectedothers[0].dtp.regionDtp;
-            res.cityDtp = find.affectedothers[0].dtp.cityDtp;
-
+            if (find == undefined) {
+                find = await connection.getRepository(People).createQueryBuilder("people")
+                .innerJoinAndSelect("people.affecteddrivers", "affecteddrivers")
+                .innerJoinAndSelect("affecteddrivers.dtp", "dtp")
+                .where('people.passport = :findPassport', { findPassport })
+                .andWhere('affecteddrivers.health = :stateHealth', { stateHealth })
+                .getOne()
+                
+                res.surname = find.surname;
+                res.name = find.name;
+                res.birthdate = find.birthdate;
+                res.deathdate = find.affecteddrivers[0].dtp.dateDtp;
+                res.regionDtp = find.affecteddrivers[0].dtp.regionDtp;
+                res.cityDtp = find.affecteddrivers[0].dtp.cityDtp;
+            } else {
+                res.surname = find.surname;
+                res.name = find.name;
+                res.birthdate = find.birthdate;
+                res.deathdate = find.affectedothers[0].dtp.dateDtp;
+                res.regionDtp = find.affectedothers[0].dtp.regionDtp;
+                res.cityDtp = find.affectedothers[0].dtp.cityDtp;
+            }
         }
         finally {
             await connection.close();
@@ -105,6 +121,10 @@ export class PeopleService {
             
             if (res.driverlicense != updatePerson.driverlicense) {
                 throw new HttpException('Человек с таким водительским удостоверением уже существует!', HttpStatus.FORBIDDEN);
+            } 
+
+            if (res.birthdate != updatePerson.birthdate) {
+                throw new HttpException('Человек не достиг 16 летнего возраста, чтобы иметь водительское удостоверение!', HttpStatus.FORBIDDEN);
             } 
             
         }
