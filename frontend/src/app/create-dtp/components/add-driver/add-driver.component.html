@@ -9,13 +9,14 @@
     
         <button class = "btn-find" mat-raised-button color="primary" [disabled]="findPassport.invalid" (click)= 'findPerson()'>Найти человека</button>
     </form>
-    <mat-form-field class="find-info" *ngIf='canFindPerson && stagePerson'>
+    <mat-form-field class="find-info" *ngIf='canFindPerson && stagePerson '>
+      <mat-spinner *ngIf='isLoadData'></mat-spinner>
       <br>
-      <h3>Информация о найденном человеке:</h3>
-      <p>{{personViewValue}}</p>
-      <p>{{personBirthdateViewValue}}</p>
-      <p>{{personDieViewValue}}</p>
-      <p>{{personDopViewValue}}</p>
+      <h3 *ngIf='!isLoadData'>Информация о найденном человеке:</h3>
+      <p *ngIf='!isLoadData'>{{personViewValue}}</p>
+      <p *ngIf='!isLoadData'>{{personBirthdateViewValue}}</p>
+      <p *ngIf='!isLoadData'>{{personDieViewValue}}</p>
+      <p *ngIf='!isLoadData'>{{personDopViewValue}}</p>
     </mat-form-field>
 
     <mat-form-field class="find-info" *ngIf='alreadyExistPerson && stagePerson'>
@@ -37,9 +38,10 @@
         <button class = "btn-find" mat-raised-button color="primary" [disabled]="findRegisterNumber.invalid" (click)= 'findTS()'>Найти ТС</button>
     </form>
     <mat-form-field class="find-info" *ngIf='canFindTS && stageTS'>
+      <mat-spinner *ngIf='isLoadData'></mat-spinner>  
       <br>
-      <h3>Информация о найденном TC:</h3>
-      <p>{{tsViewValue}}</p>
+      <h3 *ngIf='!isLoadData'>Информация о найденном TC:</h3>
+      <p *ngIf='!isLoadData'>{{tsViewValue}}</p>
     </mat-form-field>
 
     <mat-form-field class="find-info" *ngIf='canFindErrorTS && stageTS'>
@@ -54,7 +56,7 @@
 
 <div mat-dialog-actions>
   <button mat-raised-button color="warn" (click)="onNoClick()">Отменить</button>
-  <button mat-raised-button color="primary"  *ngIf='stagePerson && canFindPerson && isPersonNotDie' (click)='onStageTS()'>Далее</button>
+  <button mat-raised-button color="primary"  *ngIf='stagePerson && canFindPerson && isPersonNotDie && !isLoadData' (click)='onStageTS()'>Далее</button>
   <button mat-raised-button color="accent" *ngIf='stageTS' cdkFocusInitial (click)='onStagePerson()'>Назад</button>
-  <button mat-raised-button color="primary" *ngIf='stageTS && canFindTS' (click)="onReturnResult()" cdkFocusInitial>Добавить участника ДТП</button>
+  <button mat-raised-button color="primary" *ngIf='stageTS && canFindTS && !isLoadData' (click)="onReturnResult()" cdkFocusInitial>Добавить участника ДТП</button>
 </div>

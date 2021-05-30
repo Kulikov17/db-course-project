@@ -35,6 +35,7 @@ export class AddDriverComponent implements OnInit {
   public canAddPerson = false;
   public stagePerson = true;
   public isPersonNotDie = true;
+  public isLoadData = false;
   public stageTS = false;
   public personViewValue;
   public personBirthdateViewValue;
@@ -56,7 +57,6 @@ export class AddDriverComponent implements OnInit {
     private tsService: TsService) {}
 
   ngOnInit(): void {
-      console.log(this.data);
       this.findPassport = new FormGroup({
         "passport": new FormControl("", [Validators.required,  Validators.minLength(10), Validators.pattern('^[0-9]+$')])
       });
@@ -76,11 +76,13 @@ export class AddDriverComponent implements OnInit {
   }
 
   public findPerson() {
+    this.isLoadData = true;
     for (let i = 0; i < this.data.people.length; i++) { 
       if (this.data.people[i].passport == this.findPassport.controls['passport'].value) {
         this.alreadyExistPerson = true;
         this.canFindPerson = false;
         this.canFindError = false;
+        this.isLoadData = false;
         return
       }
     }
@@ -114,13 +116,17 @@ export class AddDriverComponent implements OnInit {
           this.personDopViewValue="Вы не можете создать ДТП с этим человеком";
           this.isPersonNotDie = false;
         }
-      });
+        this.isLoadData = false;
+      }, (error: any) => {
+        this.isLoadData = false;
+      }
+      );
     });
 
   }
 
   public findTS() {
-    console.log(this.data);
+    this.isLoadData = true;
     for (let i = 0; i < this.data.ts.length; i++) { 
       if (this.data.ts[i].registernumber == this.findRegisterNumber.controls['registerNumber'].value) {
         this.alreadyExistTS = true;
@@ -142,6 +148,9 @@ export class AddDriverComponent implements OnInit {
         this.tsViewValue = this.ts.brand + " ";
         this.tsViewValue += this.ts.model? this.ts.model : "";
       }
+      this.isLoadData = false;
+    }, (error: any)=> {
+      this.isLoadData = false;
     });
   }
 

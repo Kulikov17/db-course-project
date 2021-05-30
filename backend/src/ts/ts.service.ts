@@ -92,7 +92,6 @@ export class TsService {
 
     async update(findRegisterNumber: string, updateTs: UpdateTsDtoClient,  role: string): Promise<Ts> {
         const updateTsServer = await this.UpdateTsDtoClientConvertToUpdateTsDtoServer(updateTs, role);
-        console.log(updateTsServer);
 
         const connection = await this.configs.getConnection(role);
         let res;

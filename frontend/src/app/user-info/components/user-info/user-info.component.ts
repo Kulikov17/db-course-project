@@ -20,7 +20,9 @@ export class UserInfoComponent  {
     role: FormControl;
 
     isChanged:boolean = false;
-     
+    isDelete:boolean = false;
+    isUpdate:boolean = false;
+    
     private routeSubscription: Subscription;
     private querySubscription: Subscription;
     
@@ -28,7 +30,6 @@ export class UserInfoComponent  {
         this.querySubscription = routeActive.queryParams.subscribe(
             (queryParam: any) => {
                 this.userService.getUser(queryParam['username']).subscribe((resp: User) => {
-                  console.log(resp);
                   this.username = resp.username;
                   this.role = new FormControl();
                   this.role.setValue(resp.role);
@@ -56,7 +57,12 @@ export class UserInfoComponent  {
   
       this.userService.setRole(user).subscribe((resp: any) => {
         this.openAfterSetRoleDialog('Операция выполнена', 'Роль пользователя изменена!');
-        this.isChanged = false;
+        this.cancelChanges();
+        this.isUpdate = true;
+      },(error: any) => {
+        this.openAfterDeleteDialog('Операция не выполнена', error.error.message);
+        this.cancelChanges();
+        this.role.setValue('администратор');
       }) 
     }
 
@@ -69,8 +75,11 @@ export class UserInfoComponent  {
   
       dialogRef.afterClosed().subscribe(()=>{
         if (this.auth.isLoggedUser(this.username)) {
-        this.auth.logout();
-        this.router.navigateByUrl('/profile');
+        if (this.isDelete){
+          this.auth.logout();
+          this.router.navigateByUrl('/profile');
+          this.isDelete = false;
+        }
       } else {
         this.router.navigateByUrl('/users');
       }
@@ -85,9 +94,10 @@ export class UserInfoComponent  {
         }});
   
       dialogRef.afterClosed().subscribe(()=>{
-        if (this.auth.isLoggedAdmin() && this.role.value == 'сотрудник') {
+        if (this.auth.isLoggedAdmin() && this.role.value == 'сотрудник' && this.auth.isLoggedUser(this.username) && this.isUpdate) {
           this.router.navigateByUrl('/profile');
           localStorage.setItem('role', 'сотрудник');
+          this.isUpdate = false;
         }
       });
     }
@@ -101,8 +111,8 @@ export class UserInfoComponent  {
   
        dialogRef.afterClosed().subscribe(()=>{
         if (this.auth.isLoggedUser(this.username)) {
-        this.auth.logout();
-        this.router.navigateByUrl('/profile');
+          this.auth.logout();
+          this.router.navigateByUrl('/profile');
         } 
       });
     }
@@ -110,6 +120,11 @@ export class UserInfoComponent  {
     deleteUser() {
       this.userService.deleteUser(this.username).subscribe((resp: any) => {
         this.openAfterDeleteDialog('Операция выполнена', 'Пользователь был удален!');
+        this.isChanged = false;
+        this.isDelete = true;
+
+      }, (error: any) => {
+        this.openAfterDeleteDialog('Операция не выполнена', error.error.message);
         this.isChanged = false;
       }) 
     }  

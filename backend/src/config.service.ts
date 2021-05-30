@@ -29,7 +29,7 @@ export class ConfigService {
         entities: [path.join(__dirname, "**/*.entity{.ts,.js}")],
         synchronize: true
       });
-    } else {
+    } else if (role == 'читатель') {
       return await createConnection({
         name: 'admin',
         type: 'postgres',

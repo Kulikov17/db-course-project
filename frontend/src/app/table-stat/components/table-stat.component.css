@@ -1,0 +1,18 @@
+table {
+    width: 98%;
+}
+
+.item {
+    margin-left: 2%;
+}
+
+  
+.table-container {
+    position: relative;
+    max-height: 650px;
+    overflow: auto;
+}
+  
+.table {
+    width: 100%;
+}

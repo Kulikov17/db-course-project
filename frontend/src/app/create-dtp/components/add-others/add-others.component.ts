@@ -26,6 +26,7 @@ export class AddOthersComponent implements OnInit {
   public personViewValue;
   public personBirthdateViewValue;
   public isPersonNotDie = true;
+  public isLoadData = false;
   public personDieViewValue;
   public personDopViewValue;
   public datedeath = '';
@@ -46,6 +47,7 @@ export class AddOthersComponent implements OnInit {
   }
 
   public findPerson() {
+    this.isLoadData = true;
     for (let i = 0; i < this.data.people.length; i++) { 
       if (this.data.people[i].passport == this.findPassport.controls['passport'].value) {
         this.alreadyExistPerson = true;
@@ -83,6 +85,9 @@ export class AddOthersComponent implements OnInit {
           this.personDopViewValue="Вы не можете создать ДТП с этим человеком";
           this.isPersonNotDie = false;
         }
+        this.isLoadData = false;
+      }, (error: any) => {
+        this.isLoadData = false;
       });
     });
   }

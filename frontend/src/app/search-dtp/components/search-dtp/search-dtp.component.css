@@ -12,3 +12,14 @@ table {
     margin-top: 10px;
     margin-bottom: 10px;
 }
+
+
+.table-container {
+    position: relative;
+    max-height: 650px;
+    overflow: auto;
+}
+  
+.table {
+    width: 100%;
+}

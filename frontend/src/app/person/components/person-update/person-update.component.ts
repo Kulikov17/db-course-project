@@ -125,6 +125,14 @@ export class PersonUpdateComponent implements OnInit {
   }
 
   public findPerson() {
+    this.isChanged = false;
+    this.personForm.controls['userSurname'].disable();
+    this.personForm.controls['userName'].disable();
+    this.personForm.controls['userPatronymic'].disable();
+    this.personForm.controls['userSex'].disable();
+    this.personForm.controls['userBirthdate'].disable();
+    this.personForm.controls['userPassport'].disable();
+    this.personForm.controls['userDriverLicense'].disable();
     this.isLoadData = true;
     this.canFindPerson = false;
     this.canFindError = false;

@@ -10,12 +10,13 @@
         <button class = "btn-find" mat-raised-button color="primary" [disabled]="findPassport.invalid" (click)= 'findPerson()'>Найти человека</button>
     </form>
     <mat-form-field class="person-find-info" *ngIf='canFindPerson'>
+      <mat-spinner *ngIf='isLoadData'></mat-spinner>
       <br>
-      <h3>Информация о найденном человеке:</h3>
-      <p>{{personViewValue}}</p>
-      <p>{{personBirthdateViewValue}}</p>
-      <p>{{personDieViewValue}}</p>
-      <p>{{personDopViewValue}}</p>
+      <h3 *ngIf='!isLoadData'>Информация о найденном человеке:</h3>
+      <p *ngIf='!isLoadData'>{{personViewValue}}</p>
+      <p *ngIf='!isLoadData'>{{personBirthdateViewValue}}</p>
+      <p *ngIf='!isLoadData'>{{personDieViewValue}}</p>
+      <p *ngIf='!isLoadData'>{{personDopViewValue}}</p>
     </mat-form-field>
 
     <mat-form-field class="person-find-info" *ngIf='alreadyExistPerson'>
@@ -31,5 +32,5 @@
 
 <div mat-dialog-actions>
   <button mat-raised-button color="warn" (click)="onNoClick()">Отменить</button>
-  <button mat-raised-button color="primary" *ngIf='canFindPerson && isPersonNotDie' (click)="onReturnResult()">Добавить участника ДТП</button>
+  <button mat-raised-button color="primary" *ngIf='canFindPerson && isPersonNotDie && !isLoadData' (click)="onReturnResult()">Добавить участника ДТП</button>
 </div>

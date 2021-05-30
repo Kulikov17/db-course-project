@@ -104,6 +104,10 @@ export class UsersService {
           const repositoryUsers = connection.getRepository(Users);
           let findUser = await repositoryUsers.findOne({username: username});
           res = await repositoryUsers.remove(findUser);
+          findUser = await repositoryUsers.findOne({username: username});
+          if (findUser) {
+            throw new HttpException('Нельзя удалить последнего администратора!', HttpStatus.FORBIDDEN);
+          }
       }
       finally {
           await connection.close();
@@ -142,6 +146,10 @@ export class UsersService {
           let findUser = await repositoryUsers.findOne({username: user.username});
           findUser.role = user.role;
           res = await repositoryUsers.save(findUser);
+          findUser = await repositoryUsers.findOne({username: user.username});
+          if (findUser.role != user.role) {
+            throw new HttpException('Нельзя изменить роль последнего администратора!', HttpStatus.FORBIDDEN);
+          }
       }
       finally {
           await connection.close();

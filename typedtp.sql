@@ -1,0 +1,10 @@
+INSERT INTO typedtp VALUES (1, 'Столкновение');
+INSERT INTO typedtp VALUES (2, 'Опрокидывание');
+INSERT INTO typedtp VALUES (3, 'Наезд на стоящее транспортное средство');
+INSERT INTO typedtp VALUES (4, 'Наезд на препятствие');
+INSERT INTO typedtp VALUES (5, 'Наезд на пешехода');
+INSERT INTO typedtp VALUES (6, 'Наезд на велосипедиста');
+INSERT INTO typedtp VALUES (7, 'Наезд на гужевой транспорт');
+INSERT INTO typedtp VALUES (8, 'Падение пассажира');
+INSERT INTO typedtp VALUES (9, 'Падение перевозимого груза');
+INSERT INTO typedtp VALUES (10, 'Наезд на внезапно появившееся препятствие');

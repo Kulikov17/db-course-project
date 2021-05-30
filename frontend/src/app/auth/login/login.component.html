@@ -1,19 +1,19 @@
 <br>
 <h3>Для сотрудников ГИБДД</h3>
 
-<form class="example-form">
-    <mat-form-field class="example-full-width" appearance="standard">
+<form class="login-form" [formGroup]="authForm">
+    <mat-form-field class="login-full-width" appearance="standard">
       <mat-label>Логин</mat-label>
-      <input matInput [formControl]="loginControl">
+      <input matInput formControlName="login">
     </mat-form-field>
   
-    <mat-form-field class="example-full-width" appearance="standard">
+    <mat-form-field class="login-full-width" appearance="standard">
       <mat-label>Пароль</mat-label>
-      <input matInput [formControl]="passwordControl" [type]="hide ? 'password' : 'text'">
+      <input matInput formControlName="password" [type]="hide ? 'password' : 'text'">
       <button mat-icon-button matSuffix (click)="hide = !hide" [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hide">
       <mat-icon>{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
       </button>
     </mat-form-field>
-</form>
 
-<button mat-raised-button color="primary" (click)= "login()">Войти</button>
+    <button mat-raised-button color="primary" [disabled]="authForm.invalid" (click)= "login()">Войти</button>
+</form>

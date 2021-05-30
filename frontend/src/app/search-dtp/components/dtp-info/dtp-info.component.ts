@@ -18,6 +18,7 @@ export class DtpInfoComponent  {
     id: number;
     username: string;
     description: FormControl;
+    oldDescription: string;
 
     isChanged:boolean = false;
 
@@ -26,7 +27,10 @@ export class DtpInfoComponent  {
     regionDtp: string;
     cityDtp: string;
     typeDtp: any;
+    affecteddrivers: any;
+    affectedothers: any;
 
+    public isLoadData = false;
      
     private routeSubscription: Subscription;
     private querySubscription: Subscription;
@@ -36,19 +40,20 @@ export class DtpInfoComponent  {
         this.querySubscription = routeActive.queryParams.subscribe(
             (queryParam: any) => {
                 this.id = queryParam['dtpId'];
+                this.isLoadData = true;
                 this.dtpService.getDtpById(this.id).subscribe((resp: any) => {
-                  console.log(resp);
                   this.dateDtp = resp.dateDtp;
                   this.timeDtp = resp.timeDtp;
                   this.regionDtp = resp.regionDtp;
                   this.cityDtp = resp.cityDtp;
                   this.typeDtp = resp.dt;
+                  this.oldDescription = resp.descriptionDtp;
                   this.description = new FormControl('');
                   this.description.setValue(resp.descriptionDtp);
                   this.description.disable();
-                  resp.affecteddrivers.forEach(person => {
-                    this.personService.findPersonById(person.personId).subscribe((res: Person) => {console.log(res)});
-                  });
+                  this.affecteddrivers = resp.affecteddrivers;
+                  this.affectedothers = resp.affectedothers;
+                  this.isLoadData = false;
                 })
             }
         );
@@ -61,6 +66,7 @@ export class DtpInfoComponent  {
 
     cancelChanges() {
       this.isChanged = false;
+      this.description.setValue(this.oldDescription);
       this.description.disable();
     }
 
@@ -71,8 +77,9 @@ export class DtpInfoComponent  {
       };
   
       this.dtpService.changeDescription(newDesc).subscribe((resp: any) => {
+        this.oldDescription = this.description.value;
+        this.cancelChanges();
         this.openAfterUpdateDescriptionDialog('Операция выполнена', 'Описание ДТП изменено!');
-        this.isChanged = false;
       }) 
     }
 
@@ -84,7 +91,7 @@ export class DtpInfoComponent  {
         }});
   
       dialogRef.afterClosed().subscribe(()=>{
-        this.router.navigateByUrl('/search-dtp');
+        this.router.navigateByUrl('/dtp-search');
     });
     }
 

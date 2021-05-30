@@ -74,6 +74,13 @@ export class TsUpdateComponent implements OnInit {
   }
 
   public findTs() {
+    this.isChanged = false;
+    this.selectedTypeTs.disable();
+    this.tsForm.controls['tsBrand'].disable();
+    this.tsForm.controls['tsModel'].disable();
+    this.tsForm.controls['tsColor'].disable();
+    this.tsForm.controls['userPassport'].disable();
+    this.tsForm.controls['tsRegisterNumber'].disable();
     this.isLoadData = true;
     this.canFindTs = false;
     this.canFindError = false;

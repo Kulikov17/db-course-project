@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Dtp } from './entities/dtp.entity';
-import {Connection, createConnection } from "typeorm";
+import {Connection, createConnection, ReturningStatementNotSupportedError } from "typeorm";
 import * as path from 'path';
 import {  CreateAffectedDtpDto, CreateDtpDto } from './dto/create-dtp';
 import { CreateAffectedDriversDto } from './dto/create-affecteddrivers';
@@ -12,9 +12,12 @@ import { AffectedDrivers } from './entities/affecteddrivers.entity';
 import { AffectedOthers } from './entities/affectedothers.entity';
 import { FindFullInfoDtpDto } from './dto/find-full-info-dtp';
 import { FullInfoDtpCountDto } from './dto/full-info-count';
-import { MapDataDto } from './dto/map-data';
+import { MapDataDto, MapDataFindDto, CountDataDto, MinMaxDateDtp } from './dto/map-data';
 import { People } from 'src/people/entities/people.entity';
 import { UpdateDescriptionDto } from './dto/update-description';
+import { isAbstractType } from 'graphql';
+import { Observable } from 'rxjs';
+import { SSL_OP_SSLEAY_080_CLIENT_DH_BUG } from 'node:constants';
 
 
 @Injectable()
@@ -71,7 +74,6 @@ export class DtpService {
             affectedDrivers.push(await this.CreateDtpDtoClientConvertToCreateAffectedDriversDto(newAffectedClient[i], role));
         }
 
-        console.log(affectedDrivers);
         const connection = await this.configs.getConnection(role);
         let res;
         try {
@@ -93,7 +95,6 @@ export class DtpService {
             affectedOthers.push(await this.CreateDtpDtoClientConvertToCreateAffectedOthersDto(newAffectedClient[i], role));
         }
 
-        console.log(affectedOthers);
         const connection = await this.configs.getConnection(role);
         let res;
         try {
@@ -108,52 +109,45 @@ export class DtpService {
         return res;
     }
 
-    async findAllAffectedDrivers(role: string): Promise<FindFullInfoDtpDto[]> {
-        const connection = await this.configs.getConnection(role);
-        let res;
-        try {
-            res = await connection.getRepository(Dtp).createQueryBuilder("dtp")
-            .innerJoinAndSelect("dtp.affecteddrivers", "affecteddrivers")
-            .innerJoinAndSelect("affecteddrivers.person", "people")
-            .innerJoinAndSelect("dtp.dt", "typedtp")
-            .getMany()
-        }
-        finally {
-            await connection.close();
-        }
-        return res;
-    }
-
-    async findAllAffectedOthers(role: string): Promise<FindFullInfoDtpDto[]> {
-        const connection = await this.configs.getConnection(role);
-        let res;
-        try {
-            res = await connection.getRepository(Dtp).createQueryBuilder("dtp")
-            .innerJoinAndSelect("dtp.affectedothers", "affectedothers")
-            .innerJoinAndSelect("affectedothers.person", "people")
-            .innerJoinAndSelect("dtp.dt", "typedtp")
-            .getMany()
-        }
-        finally {
-            await connection.close();
-        }
-        return res;
-    }
-
     async find(role: string): Promise<Dtp[]> {
         const connection = await this.configs.getConnection(role);
-  
-        let res;
+
+        let res, find;
         try {
             res = await connection.getRepository(Dtp)
             .createQueryBuilder("dtp")
+            .innerJoinAndSelect("dtp.affecteddrivers", "affecteddrivers")
+            .innerJoinAndSelect("affecteddrivers.ts", "ts")
+            .innerJoinAndSelect("affecteddrivers.person", "people")
+            .leftJoinAndSelect("dtp.affectedothers", "affectedothers")
             .innerJoinAndSelect("dtp.dt", "typedtp")
             .getMany()
+
+            find = await connection.getRepository(Dtp)
+            .createQueryBuilder("dtp")
+            .innerJoinAndSelect("dtp.affecteddrivers", "affecteddrivers")
+            .leftJoinAndSelect("dtp.affectedothers", "affectedothers")
+            .innerJoinAndSelect("affectedothers.person", "people")
+            .innerJoinAndSelect("dtp.dt", "typedtp")
+            .getMany()
+
+            
+            for(let i = 0; i < res.length; i++) {
+                if (res[i].affectedothers.length > 0) {
+                    for (let j = 0; j < find.length; j++) {
+                        if (res[i].dtpId == find[j].dtpId) {
+                            res[i].affectedothers = find[j].affectedothers;
+                            break;
+                        }
+                    }
+                }
+            }
+
         }
         finally {
             await connection.close();
         }
-  
+
         return res;
     }
 
@@ -181,7 +175,9 @@ export class DtpService {
             .where('dtp.dtpId = :id', { id })
             .getOne()
 
-            res.affectedothers = find.affectedothers;
+            if (find) {
+                res.affectedothers = find.affectedothers;
+            }
         }
         finally {
             await connection.close();
@@ -190,37 +186,417 @@ export class DtpService {
         return res;
     }
 
-    async findAllInfoByRegion(role: string) : Promise<MapDataDto>{
+
+    async findCountDtp(role: string): Promise<MapDataFindDto[]> {
         const connection = await this.configs.getConnection(role);
-        let res:MapDataDto;
+        let res: MapDataFindDto[];
         try {
-            await connection.createQueryRunner().query("select * from getCountDtp()").then((resp:any ) => {
-                res.countDtp = resp;
-            });
-            await connection.createQueryRunner().query("select * from getCountAffectedDrivers('ранен')").then((resp:any ) => {
-                res.affecteddrivershurt = resp;
-            });
-            await connection.createQueryRunner().query("select * from getCountAffectedDrivers('погиб')").then((resp:any ) => {
-                res.affecteddriversdie = resp;
-            });
-            await connection.createQueryRunner().query("select * from getCountAffectedOthers('ранен')").then((resp:any ) => {
-                res.affectedothershurt = resp;
-            });
-            await connection.createQueryRunner().query("select * from getCountAffectedOthersDie('погиб')").then((resp:any ) => {
-                res.affectedothersdie = resp;
-            });
+            res = await connection.createQueryRunner().query("select * from getCountDtp()");
         }
         finally {
             await connection.close();
-            
         }
+
         return res;
     }
+
+    async findCountAffectedDriversDie(role: string): Promise<MapDataFindDto[]> {
+        const connection = await this.configs.getConnection(role);
+        let res: MapDataFindDto[];
+        try {
+            res = await connection.createQueryRunner().query("select * from getCountAffectedDrivers('погиб')");
+        }
+        finally {
+            await connection.close();
+        }
+
+        return res;
+    }
+
+    async findCountAffectedDriversHurt(role: string): Promise<MapDataFindDto[]> {
+        const connection = await this.configs.getConnection(role);
+        let res: MapDataFindDto[];
+        try {
+            res = await connection.createQueryRunner().query("select * from getCountAffectedDrivers('ранен')");
+        }
+        finally {
+            await connection.close();
+        }
+
+        return res;
+    }
+
+    async findCountAffectedOthersDie(role: string): Promise<MapDataFindDto[]> {
+        const connection = await this.configs.getConnection(role);
+        let res: MapDataFindDto[];
+        try {
+            res = await connection.createQueryRunner().query("select * from getCountAffectedOthers('погиб')");
+        }
+        finally {
+            await connection.close();
+        }
+
+        return res;
+    }
+
+    async findCountAffectedOthersHurt(role: string): Promise<MapDataFindDto[]> {
+        const connection = await this.configs.getConnection(role);
+        let res: MapDataFindDto[];
+        try {
+            res = await connection.createQueryRunner().query("select * from getCountAffectedOthers('ранен')");
+        }
+        finally {
+            await connection.close();
+        }
+
+        return res;
+    }
+
+    async findCountDtpWithDate(findCount: CountDataDto, role: string): Promise<MapDataFindDto[]> {
+        const connection = await this.configs.getConnection(role);
+        let res: MapDataFindDto[];
+        try {
+            res = await connection.createQueryRunner().query("select * from getCountDtpWithDate('"+findCount.mindate +"','"+findCount.maxdate+"')");
+        }
+        finally {
+            await connection.close();
+        }
+
+        return res;
+    }
+
+    async findCountAffectedDriversDieWithDate(findCount: CountDataDto, role: string): Promise<MapDataFindDto[]> {
+        const connection = await this.configs.getConnection(role);
+        let res: MapDataFindDto[];
+        try {
+            res = await connection.createQueryRunner().query("select * from getCountAffectedDriversWithDate('погиб','"+findCount.mindate +"','"+findCount.maxdate+"')");
+        }
+        finally {
+            await connection.close();
+        }
+
+        return res;
+    }
+
+    async findCountAffectedDriversHurtWithDate(findCount: CountDataDto, role: string): Promise<MapDataFindDto[]> {
+        const connection = await this.configs.getConnection(role);
+        let res: MapDataFindDto[];
+        try {
+            res = await connection.createQueryRunner().query("select * from getCountAffectedDriversWithDate('ранен','"+findCount.mindate +"','"+findCount.maxdate+"')");
+        }
+        finally {
+            await connection.close();
+        }
+
+        return res;
+    }
+
+    async findCountAffectedOthersDieWithDate(findCount: CountDataDto, role: string): Promise<MapDataFindDto[]> {
+        const connection = await this.configs.getConnection(role);
+        let res: MapDataFindDto[];
+        try {
+            res = await connection.createQueryRunner().query("select * from getCountAffectedOthersWithDate('погиб','"+findCount.mindate +"','"+findCount.maxdate+"')");
+        }
+        finally {
+            await connection.close();
+        }
+
+        return res;
+    }
+
+    async findCountAffectedOthersHurtWithDate(findCount: CountDataDto, role: string): Promise<MapDataFindDto[]> {
+        const connection = await this.configs.getConnection(role);
+        let res: MapDataFindDto[];
+        try {
+            res = await connection.createQueryRunner().query("select * from getCountAffectedOthersWithDate('ранен','"+findCount.mindate +"','"+findCount.maxdate+"')");
+        }
+        finally {
+            await connection.close();
+        }
+
+        return res;
+    }
+
+    async findCountDtpWithDateCategory(findCount: CountDataDto, role: string): Promise<MapDataFindDto[]> {
+        const connection = await this.configs.getConnection(role);
+        let res: MapDataFindDto[];
+        try {
+            res = await connection.createQueryRunner().query("select * from getCountDtpWithDateAndCategory('"+findCount.mindate +"','"+findCount.maxdate+"',"+findCount.categoryid+")");
+        }
+        finally {
+            await connection.close();
+        }
+
+        return res;
+    }
+
+    
+    async findCountAffectedDriversDieWithDateCategory(findCount: CountDataDto, role: string): Promise<MapDataFindDto[]> {
+        const connection = await this.configs.getConnection(role);
+        let res: MapDataFindDto[];
+        try {
+            res = await connection.createQueryRunner().query("select * from getCountAffectedDriversWithDateAndCategory('погиб','"+findCount.mindate +"','"+findCount.maxdate+"',"+findCount.categoryid+")");
+        }
+        finally {
+            await connection.close();
+        }
+
+        return res;
+    }
+
+    async findCountAffectedDriversHurtWithDateCategory(findCount: CountDataDto, role: string): Promise<MapDataFindDto[]> {
+        const connection = await this.configs.getConnection(role);
+        let res: MapDataFindDto[];
+        try {
+            res = await connection.createQueryRunner().query("select * from getCountAffectedDriversWithDateAndCategory('ранен','"+findCount.mindate +"','"+findCount.maxdate+"',"+findCount.categoryid+")");
+        }
+        finally {
+            await connection.close();
+        }
+
+        return res;
+    }
+
+    async findCountAffectedOthersDieWithDateCategory(findCount: CountDataDto, role: string): Promise<MapDataFindDto[]> {
+        const connection = await this.configs.getConnection(role);
+        let res: MapDataFindDto[];
+        try {
+            res = await connection.createQueryRunner().query("select * from getCountAffectedOthersWithDateAndCategory('погиб','"+findCount.mindate +"','"+findCount.maxdate+"',"+findCount.categoryid+")");
+        }
+        finally {
+            await connection.close();
+        }
+
+        return res;
+    }
+
+    async findCountAffectedOthersHurtWithDateCategory(findCount: CountDataDto, role: string): Promise<MapDataFindDto[]> {
+        const connection = await this.configs.getConnection(role);
+        let res: MapDataFindDto[];
+        try {
+            res = await connection.createQueryRunner().query("select * from getCountAffectedOthersWithDateAndCategory('ранен','"+findCount.mindate +"','"+findCount.maxdate+"',"+findCount.categoryid+")");
+        }
+        finally {
+            await connection.close();
+        }
+
+        return res;
+    }
+
+
+    async findCountDtpWithCity(role: string): Promise<MapDataFindDto[]> {
+        const connection = await this.configs.getConnection(role);
+        let res: MapDataFindDto[];
+        try {
+            res = await connection.createQueryRunner().query("select * from getCountDtpWithCity()");
+        }
+        finally {
+            await connection.close();
+        }
+
+        return res;
+    }
+
+    async findCountAffectedDriversDieWithCity(role: string): Promise<MapDataFindDto[]> {
+        const connection = await this.configs.getConnection(role);
+        let res: MapDataFindDto[];
+        try {
+            res = await connection.createQueryRunner().query("select * from getCountAffectedDriversWithCity('погиб')");
+        }
+        finally {
+            await connection.close();
+        }
+
+        return res;
+    }
+
+    async findCountAffectedDriversHurtWithCity(role: string): Promise<MapDataFindDto[]> {
+        const connection = await this.configs.getConnection(role);
+        let res: MapDataFindDto[];
+        try {
+            res = await connection.createQueryRunner().query("select * from getCountAffectedDriversWithCity('ранен')");
+        }
+        finally {
+            await connection.close();
+        }
+
+        return res;
+    }
+
+    async findCountAffectedOthersDieWithCity(role: string): Promise<MapDataFindDto[]> {
+        const connection = await this.configs.getConnection(role);
+        let res: MapDataFindDto[];
+        try {
+            res = await connection.createQueryRunner().query("select * from getCountAffectedOthersWithCity('погиб')");
+        }
+        finally {
+            await connection.close();
+        }
+
+        return res;
+    }
+
+    async findCountAffectedOthersHurtWithCity(role: string): Promise<MapDataFindDto[]> {
+        const connection = await this.configs.getConnection(role);
+        let res: MapDataFindDto[];
+        try {
+            res = await connection.createQueryRunner().query("select * from getCountAffectedOthersWithCity('ранен')");
+        }
+        finally {
+            await connection.close();
+        }
+
+        return res;
+    }
+
+    async findCountDtpWithDateAndCity(findCount: CountDataDto, role: string): Promise<MapDataFindDto[]> {
+        const connection = await this.configs.getConnection(role);
+        let res: MapDataFindDto[];
+        try {
+            res = await connection.createQueryRunner().query("select * from getCountDtpWithCityAndDate('"+findCount.mindate +"','"+findCount.maxdate+"')");
+        }
+        finally {
+            await connection.close();
+        }
+
+        return res;
+    }
+
+    async findCountAffectedDriversDieWithDateAndCity(findCount: CountDataDto, role: string): Promise<MapDataFindDto[]> {
+        const connection = await this.configs.getConnection(role);
+        let res: MapDataFindDto[];
+        try {
+            res = await connection.createQueryRunner().query("select * from getCountAffectedDriversWithDateAndCity('погиб','"+findCount.mindate +"','"+findCount.maxdate+"')");
+        }
+        finally {
+            await connection.close();
+        }
+
+        return res;
+    }
+
+    async findCountAffectedDriversHurtWithDateAndCity(findCount: CountDataDto, role: string): Promise<MapDataFindDto[]> {
+        const connection = await this.configs.getConnection(role);
+        let res: MapDataFindDto[];
+        try {
+            res = await connection.createQueryRunner().query("select * from getCountAffectedDriversWithDateAndCity('ранен','"+findCount.mindate +"','"+findCount.maxdate+"')");
+        }
+        finally {
+            await connection.close();
+        }
+
+        return res;
+    }
+
+    async findCountAffectedOthersDieWithDateAndCity(findCount: CountDataDto, role: string): Promise<MapDataFindDto[]> {
+        const connection = await this.configs.getConnection(role);
+        let res: MapDataFindDto[];
+        try {
+            res = await connection.createQueryRunner().query("select * from getCountAffectedOthersWithDateAndCity('погиб','"+findCount.mindate +"','"+findCount.maxdate+"')");
+        }
+        finally {
+            await connection.close();
+        }
+
+        return res;
+    }
+
+    async findCountAffectedOthersHurtWithDateAndCity(findCount: CountDataDto, role: string): Promise<MapDataFindDto[]> {
+        const connection = await this.configs.getConnection(role);
+        let res: MapDataFindDto[];
+        try {
+            res = await connection.createQueryRunner().query("select * from getCountAffectedOthersWithDateAndCity('ранен','"+findCount.mindate +"','"+findCount.maxdate+"')");
+        }
+        finally {
+            await connection.close();
+        }
+
+        return res;
+    }
+
+    async findCountDtpWithDateCategoryAndCity(findCount: CountDataDto, role: string): Promise<MapDataFindDto[]> {
+        const connection = await this.configs.getConnection(role);
+        let res: MapDataFindDto[];
+        try {
+            res = await connection.createQueryRunner().query("select * from getCountDtpWithCityAndDateAndCategory('"+findCount.mindate +"','"+findCount.maxdate+"',"+findCount.categoryid+")");
+        }
+        finally {
+            await connection.close();
+        }
+
+        return res;
+    }
+
+    
+    async findCountAffectedDriversDieWithDateCategoryAndCity(findCount: CountDataDto, role: string): Promise<MapDataFindDto[]> {
+        const connection = await this.configs.getConnection(role);
+        let res: MapDataFindDto[];
+        try {
+            res = await connection.createQueryRunner().query("select * from getCountAffectedDriversWithDateAndCategoryAndCity('погиб','"+findCount.mindate +"','"+findCount.maxdate+"',"+findCount.categoryid+")");
+        }
+        finally {
+            await connection.close();
+        }
+
+        return res;
+    }
+
+    async findCountAffectedDriversHurtWithDateCategoryAndCity(findCount: CountDataDto, role: string): Promise<MapDataFindDto[]> {
+        const connection = await this.configs.getConnection(role);
+        let res: MapDataFindDto[];
+        try {
+            res = await connection.createQueryRunner().query("select * from getCountAffectedDriversWithDateAndCategoryAndCity('ранен','"+findCount.mindate +"','"+findCount.maxdate+"',"+findCount.categoryid+")");
+        }
+        finally {
+            await connection.close();
+        }
+
+        return res;
+    }
+
+    async findCountAffectedOthersDieWithDateCategoryAndCity(findCount: CountDataDto, role: string): Promise<MapDataFindDto[]> {
+        const connection = await this.configs.getConnection(role);
+        let res: MapDataFindDto[];
+        try {
+            res = await connection.createQueryRunner().query("select * from getCountAffectedOthersWithDateAndCategoryAndCity('погиб','"+findCount.mindate +"','"+findCount.maxdate+"',"+findCount.categoryid+")");
+        }
+        finally {
+            await connection.close();
+        }
+
+        return res;
+    }
+
+    async findCountAffectedOthersHurtWithDateCategoryAndCity(findCount: CountDataDto, role: string): Promise<MapDataFindDto[]> {
+        const connection = await this.configs.getConnection(role);
+        let res: MapDataFindDto[];
+        try {
+            res = await connection.createQueryRunner().query("select * from getCountAffectedOthersWithDateAndCategoryAndCity('ранен','"+findCount.mindate +"','"+findCount.maxdate+"',"+findCount.categoryid+")");
+        }
+        finally {
+            await connection.close();
+        }
+
+        return res;
+    }
+
+    async findDtpDate(role: string): Promise<MinMaxDateDtp> {
+        const connection = await this.configs.getConnection(role);
+        let res: MinMaxDateDtp;
+        try {
+            res = await connection.createQueryRunner().query("select * from getMinMaxDateDtp()");
+        }
+        finally {
+            await connection.close();
+        }
+
+        return res;
+    }
+    
 
     async updateDescription(id: number, data: UpdateDescriptionDto, role: string): Promise<Dtp> {
         const connection = await this.configs.getConnection(role);
   
-        console.log(data);
         let res;
         try {
             const repositoryDtp = connection.getRepository(Dtp);

@@ -13,7 +13,6 @@ export class PeopleService {
 
     async create(newPerson: CreatePersonDto, role: string): Promise<People> {
         const connection = await this.configs.getConnection(role);
-        console.log(newPerson);
         let res;
         try {
             const repositoryPeople = connection.getRepository(People);
@@ -120,7 +119,7 @@ export class PeopleService {
             res = await repositoryPeople.findOne({id: checkId });
             
             if (res.driverlicense != updatePerson.driverlicense) {
-                throw new HttpException('Человек с таким водительским удостоверением уже существует!', HttpStatus.FORBIDDEN);
+                throw new HttpException('Человек с таким водительским удостоверением уже существует или не достиг 16 летнего возраста, чтобы иметь водительское удостоверение!', HttpStatus.FORBIDDEN);
             } 
 
             if (res.birthdate != updatePerson.birthdate) {

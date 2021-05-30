@@ -243,13 +243,14 @@ export class CreateDtpComponent implements OnInit {
 
   onAdressSelect(event: any) {
     const addressData = event.data as DadataAddress;
-    console.log(addressData);
     this.addressInvalid = (addressData.city || addressData.settlement) ? false : true;
     this.cityDTP = addressData.city? addressData.city: addressData.settlement;
     if (addressData.region == "Саха /Якутия/") {
       this.regionDTP = "Якутия";
     } else if (addressData.region == "Коми") {
       this.regionDTP = "Республика Коми";
+    } else if (addressData.region == "Чеченская") {
+      this.regionDTP = "Чечня";
     } else if (addressData.region == "Ханты-Мансийский Автономный округ - Югра" ) {
       this.regionDTP = "Ханты-Мансийский автономный округ";
     } else if (addressData.region == "Ханты-Мансийский Автономный округ - Югра" ) {
@@ -441,14 +442,10 @@ export class CreateDtpComponent implements OnInit {
       dt: typesDtp
     };
 
-    console.log(newDtp);
-
     this.dtpService.addDtp(newDtp).subscribe(
       (resp: any) => { 
-         console.log(resp);
          affectedDrivers.forEach((item: any) => {item.dtpId = resp.dtpId});
          affectedOthers.forEach((item: any) => {item.dtpId = resp.dtpId});
-         console.log(affectedDrivers);
          this.dtpService.addAffectedDrivers(affectedDrivers).subscribe(
            (resp: any) => {
              if (affectedOthers.length > 0) {

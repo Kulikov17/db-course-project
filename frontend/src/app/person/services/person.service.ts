@@ -15,7 +15,6 @@ export class PersonService {
   constructor(private http: HttpClient, public dialog: MatDialog) { }
 
   public openDialog(title: string, info: string) {
-    console.log(info);
     const dialogRef = this.dialog.open(ErrorDialogComponent, {
       data: {
         title: title,
