@@ -87,10 +87,10 @@ EXECUTE PROCEDURE trigger_update_ts ()
 CREATE FUNCTION trigger_delete_user () RETURNS trigger AS 
 $$
 	BEGIN
-		if (NEW.role = 'администратор' and (SELECT count(*) from users where users.role = 'администратор') = 1) then
-			return OLD;
+		if (OLd.role = 'администратор' and (SELECT count(*) from users where users.role = 'администратор') = 1) then
+			return null;
 		else
-    		return NEW;
+    		return OLD;
 		end if;
 END;
 $$ LANGUAGE  plpgsql;
@@ -122,4 +122,4 @@ BEFORE UPDATE ON users FOR EACH ROW
 EXECUTE PROCEDURE trigger_update_user ()
 
 DELETE from users
-WHERE id_person = 2001;
+WHERE id = 69;
