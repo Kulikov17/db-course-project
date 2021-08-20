@@ -1,3 +1,3 @@
 # Database_Coursework
 
-Universal messenger microservice.
+Разработка приложения для сбора статистики по дорожно-транспортным происшествиям Российской Федерации
